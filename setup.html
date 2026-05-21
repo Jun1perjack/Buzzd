@@ -222,6 +222,10 @@ npm start</pre>
 
       <a href="buzz-controller.ini" download class="btn-download">⬇ Download PCSX2 config snippet</a>
       <p style="margin-top:8px;">The download includes the full button mapping and instructions for merging it directly into <code>PCSX2.ini</code> if you prefer to skip manual binding.</p>
+
+      <p style="margin-top:16px;">Or run this script to patch PCSX2.ini automatically — it detects the correct device index and writes all 20 bindings for you:</p>
+      <pre>python3 ~/Buzzd/server/setup-pcsx2.py</pre>
+      <div class="note">Make sure the Buzzd server is running before you run this, and that PCSX2 has been opened at least once (so its config file exists). Your existing PCSX2.ini is backed up automatically.</div>
     </div>
   </div>
 
