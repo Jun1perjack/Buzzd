@@ -119,6 +119,12 @@ function printBanner(roomCode, joinUrl, wsUrl) {
   qrcode.generate(joinUrl, { small: true });
   console.log(`\nJoin URL: ${joinUrl}`);
   console.log(`WS URL  : ${wsUrl}`);
+
+  console.log('\nButton mapping (PCSX2 USB → phone button):');
+  console.log('  P1: Red=BUZZ  Blue=Blue  Orange=Orange  Green=Green  Yellow=Yellow');
+  console.log('  P2: same pattern, buttons 6–10');
+  console.log('  P3: same pattern, buttons 11–15');
+  console.log('  P4: same pattern, buttons 16–20');
   console.log('\nWaiting for players...\n');
 }
 

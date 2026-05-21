@@ -106,6 +106,21 @@
     }
 
     .back-link:hover { color: var(--text); }
+
+    .btn-download {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid #444;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .btn-download:hover { border-color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -184,9 +199,29 @@ npm start</pre>
     <div class="step-num" style="background: #444;">🎮</div>
     <div class="step-body">
       <h2>Configure PCSX2</h2>
-      <p>The server creates a virtual gamepad called <strong>Buzz Controller</strong> with 20 buttons.</p>
-      <p>In PCSX2: <strong>Settings → Controllers → USB</strong> → set port 1 to <em>Buzz Controller</em> → Configure → map each button.</p>
-      <p>Button order per player: <strong>BUZZ, Blue, Orange, Green, Yellow</strong> (players 1–4 use buttons 1–20 in sequence).</p>
+      <p>The server creates a virtual gamepad called <strong>Buzz Controller</strong>. Start the server first so PCSX2 can detect it.</p>
+      <p>In PCSX2: <strong>Settings → Controllers → USB</strong> → set port 1 to <em>BuzzController</em> → Configure.</p>
+      <p>Bind each input by clicking it in PCSX2, then pressing the matching button on your phone in the Buzzd app:</p>
+
+      <table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin: 12px 0;">
+        <thead>
+          <tr style="color:var(--text-muted); text-align:left; border-bottom:1px solid #333;">
+            <th style="padding:6px 8px;">PCSX2 input</th>
+            <th style="padding:6px 8px;">Press on phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:5px 8px; color:var(--text-muted);">Player 1 / Red</td><td style="padding:5px 8px;">P1 — big red <strong>BUZZ</strong></td></tr>
+          <tr style="background:#1f1f1f;"><td style="padding:5px 8px; color:var(--text-muted);">Player 1 / Blue</td><td style="padding:5px 8px;">P1 — <strong style="color:var(--buzz-blue);">Blue</strong></td></tr>
+          <tr><td style="padding:5px 8px; color:var(--text-muted);">Player 1 / Orange</td><td style="padding:5px 8px;">P1 — <strong style="color:var(--buzz-orange);">Orange</strong></td></tr>
+          <tr style="background:#1f1f1f;"><td style="padding:5px 8px; color:var(--text-muted);">Player 1 / Green</td><td style="padding:5px 8px;">P1 — <strong style="color:var(--buzz-green);">Green</strong></td></tr>
+          <tr><td style="padding:5px 8px; color:var(--text-muted);">Player 1 / Yellow</td><td style="padding:5px 8px;">P1 — <strong style="color:var(--buzz-yellow);">Yellow</strong></td></tr>
+          <tr style="background:#1f1f1f;"><td style="padding:5px 8px; color:var(--text-muted);" colspan="2" align="center">↑ Repeat for Players 2, 3, 4 ↑</td></tr>
+        </tbody>
+      </table>
+
+      <a href="buzz-controller.ini" download class="btn-download">⬇ Download PCSX2 config snippet</a>
+      <p style="margin-top:8px;">The download includes the full button mapping and instructions for merging it directly into <code>PCSX2.ini</code> if you prefer to skip manual binding.</p>
     </div>
   </div>
 
