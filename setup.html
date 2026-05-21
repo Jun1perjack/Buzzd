@@ -114,14 +114,14 @@
   <a href="/" class="back-link">← Back to game</a>
 
   <h1>Server Setup</h1>
-  <p class="subtitle">Run this once on your Steam Deck. Takes about 5 minutes.</p>
+  <p class="subtitle">One-time setup on your Steam Deck. Takes about 5 minutes.</p>
 
   <!-- Step 1 -->
   <div class="step">
     <div class="step-num">1</div>
     <div class="step-body">
-      <h2>Get an ngrok account</h2>
-      <p>ngrok creates a public URL so your phone can reach the Steam Deck. Sign up free at <a href="https://ngrok.com" target="_blank">ngrok.com</a>, then copy your <strong>auth token</strong> from the dashboard.</p>
+      <h2>Get a free ngrok account</h2>
+      <p>ngrok creates a public URL so phones can reach the Steam Deck over the internet. Sign up free at <a href="https://ngrok.com" target="_blank">ngrok.com</a>, then copy your <strong>Auth Token</strong> from the dashboard — you'll need it in step 3.</p>
     </div>
   </div>
 
@@ -129,13 +129,8 @@
   <div class="step">
     <div class="step-num">2</div>
     <div class="step-body">
-      <h2>Install dependencies on the Steam Deck</h2>
-      <p>Switch to Desktop Mode. Open a terminal and run:</p>
-      <pre>pip3 install evdev</pre>
-      <p>Then install Node.js if you don't have it (via the Discover store or <a href="https://nodejs.org" target="_blank">nodejs.org</a>).</p>
-      <div class="note">
-        If <code>pip3 install evdev</code> fails, try running inside a Distrobox container or enable Developer Mode in Steam Settings first.
-      </div>
+      <h2>Install Node.js</h2>
+      <p>Switch to Desktop Mode. Install Node.js via the Discover store, or download it from <a href="https://nodejs.org" target="_blank">nodejs.org</a>. No other dependencies needed — the virtual controller uses Python, which is already built into SteamOS.</p>
     </div>
   </div>
 
@@ -143,12 +138,15 @@
   <div class="step">
     <div class="step-num">3</div>
     <div class="step-body">
-      <h2>Set uinput permissions (once)</h2>
-      <p>The virtual controller needs access to <code>/dev/uinput</code>:</p>
-      <pre>echo 'KERNEL=="uinput", GROUP="input", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
-sudo udevadm control --reload-rules && sudo udevadm trigger
-sudo usermod -aG input $USER</pre>
-      <p>Then <strong>log out and back in</strong> (or reboot) for the group change to apply.</p>
+      <h2>Download and configure the server</h2>
+      <p>Open a terminal in Desktop Mode and run:</p>
+      <pre>git clone https://github.com/Jun1perjack/Buzzd.git
+cd Buzzd/server
+npm install
+cp .env.example .env</pre>
+      <p>Then open <code>.env</code> in a text editor and fill in:</p>
+      <pre>NGROK_AUTHTOKEN=your_token_here
+VERCEL_URL=https://your-app.vercel.app</pre>
     </div>
   </div>
 
@@ -156,14 +154,12 @@ sudo usermod -aG input $USER</pre>
   <div class="step">
     <div class="step-num">4</div>
     <div class="step-body">
-      <h2>Download and configure the server</h2>
-      <pre>git clone https://github.com/Jun1perjack/Buzzd.git
-cd Buzzd/server
-npm install
-cp .env.example .env</pre>
-      <p>Open <code>.env</code> and fill in your values:</p>
-      <pre>NGROK_AUTHTOKEN=your_token_here
-VERCEL_URL=https://your-app.vercel.app</pre>
+      <h2>Allow access to the virtual controller (once)</h2>
+      <p>The server creates a virtual gamepad via <code>/dev/uinput</code>. Run these three commands to grant access:</p>
+      <pre>echo 'KERNEL=="uinput", GROUP="input", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+sudo usermod -aG input $USER</pre>
+      <p>Then <strong>log out and back in</strong> (or reboot) for the change to take effect.</p>
     </div>
   </div>
 
@@ -172,10 +168,11 @@ VERCEL_URL=https://your-app.vercel.app</pre>
     <div class="step-num">5</div>
     <div class="step-body">
       <h2>Start the server</h2>
-      <pre>npm start</pre>
-      <p>A QR code will appear in the terminal. Players scan it to join — no room code or URL needed.</p>
+      <pre>cd Buzzd/server
+npm start</pre>
+      <p>A QR code will appear in the terminal. Players scan it with their phone to join instantly — no URL or room code to type.</p>
       <div class="note">
-        Start the server <strong>before</strong> opening PCSX2 so the virtual controller is detected.
+        Start the server <strong>before</strong> opening PCSX2 so the virtual controller is detected at launch.
       </div>
     </div>
   </div>
