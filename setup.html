@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>Buzzd — Server Setup</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .setup-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .setup-wrap h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--buzz-red);
+      margin-bottom: 6px;
+    }
+
+    .setup-wrap .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      font-size: 0.95rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--buzz-red);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .step-body p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .step-body a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    .step-body a:hover { text-decoration: underline; }
+
+    pre {
+      background: #111;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      line-height: 1.6;
+      color: #d4d4d4;
+      margin-top: 8px;
+      white-space: pre;
+    }
+
+    .note {
+      background: var(--surface);
+      border-left: 3px solid var(--buzz-yellow);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 40px 0;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 32px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="setup-wrap">
+
+  <a href="/" class="back-link">← Back to game</a>
+
+  <h1>Server Setup</h1>
+  <p class="subtitle">Run this once on your Steam Deck. Takes about 5 minutes.</p>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h2>Get an ngrok account</h2>
+      <p>ngrok creates a public URL so your phone can reach the Steam Deck. Sign up free at <a href="https://ngrok.com" target="_blank">ngrok.com</a>, then copy your <strong>auth token</strong> from the dashboard.</p>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h2>Install dependencies on the Steam Deck</h2>
+      <p>Switch to Desktop Mode. Open a terminal and run:</p>
+      <pre>pip3 install evdev</pre>
+      <p>Then install Node.js if you don't have it (via the Discover store or <a href="https://nodejs.org" target="_blank">nodejs.org</a>).</p>
+      <div class="note">
+        If <code>pip3 install evdev</code> fails, try running inside a Distrobox container or enable Developer Mode in Steam Settings first.
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h2>Set uinput permissions (once)</h2>
+      <p>The virtual controller needs access to <code>/dev/uinput</code>:</p>
+      <pre>echo 'KERNEL=="uinput", GROUP="input", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+sudo usermod -aG input $USER</pre>
+      <p>Then <strong>log out and back in</strong> (or reboot) for the group change to apply.</p>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h2>Download and configure the server</h2>
+      <pre>git clone https://github.com/Jun1perjack/Buzzd.git
+cd Buzzd/server
+npm install
+cp .env.example .env</pre>
+      <p>Open <code>.env</code> and fill in your values:</p>
+      <pre>NGROK_AUTHTOKEN=your_token_here
+VERCEL_URL=https://your-app.vercel.app</pre>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h2>Start the server</h2>
+      <pre>npm start</pre>
+      <p>A QR code will appear in the terminal. Players scan it to join — no room code or URL needed.</p>
+      <div class="note">
+        Start the server <strong>before</strong> opening PCSX2 so the virtual controller is detected.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PCSX2 -->
+  <div class="step">
+    <div class="step-num" style="background: #444;">🎮</div>
+    <div class="step-body">
+      <h2>Configure PCSX2</h2>
+      <p>The server creates a virtual gamepad called <strong>Buzz Controller</strong> with 20 buttons.</p>
+      <p>In PCSX2: <strong>Settings → Controllers → USB</strong> → set port 1 to <em>Buzz Controller</em> → Configure → map each button.</p>
+      <p>Button order per player: <strong>BUZZ, Blue, Orange, Green, Yellow</strong> (players 1–4 use buttons 1–20 in sequence).</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
