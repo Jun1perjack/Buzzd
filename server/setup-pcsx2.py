@@ -22,6 +22,8 @@ SERVER_HEALTH = "http://localhost:3000/health"
 
 BUTTON_LABELS = ["Red", "Blue", "Orange", "Green", "Yellow"]
 
+# PCSX2 key format: BuzzDevice_Red1, BuzzDevice_Blue1, etc.
+
 
 # ── Device detection via /proc/bus/input/devices ─────────────────────────────
 
@@ -58,16 +60,13 @@ def find_buzz_sdl_index():
 def build_usb_section(sdl_index):
     lines = [
         "[USB1]",
-        "Type = BuzzController",
-        "",
-        "[USB1/BuzzController]",
+        "Type = BuzzDevice",
     ]
     for player in range(1, 5):
         for btn_index, label in enumerate(BUTTON_LABELS):
             button_num = (player - 1) * 5 + btn_index
-            lines.append(
-                f"Player{player}/{label} = SDL-{sdl_index}/Button{button_num}"
-            )
+            key = f"BuzzDevice_{label}{player}"
+            lines.append(f"{key} = SDL-{sdl_index}/Button{button_num}")
     return "\n".join(lines)
 
 
@@ -75,9 +74,8 @@ def patch_ini(ini_path, usb_section):
     with open(ini_path, "r") as f:
         content = f.read()
 
-    # Remove existing USB1 sections
-    content = re.sub(r"\[USB1\].*?(?=\n\[|\Z)", "", content, flags=re.DOTALL)
-    content = re.sub(r"\[USB1/BuzzController\].*?(?=\n\[|\Z)", "", content, flags=re.DOTALL)
+    # Remove existing USB1 section (and any USB1/subsections)
+    content = re.sub(r"\[USB1[^\]]*\].*?(?=\n\[|\Z)", "", content, flags=re.DOTALL)
     content = re.sub(r"\n{3,}", "\n\n", content).rstrip()
     content = content + "\n\n" + usb_section + "\n"
 
@@ -127,7 +125,8 @@ def main():
     for player in range(1, 5):
         for btn_index, label in enumerate(BUTTON_LABELS):
             button_num = (player - 1) * 5 + btn_index
-            print(f"  Player{player}/{label.ljust(6)} = SDL-{sdl_index}/Button{button_num}")
+            key = f"BuzzDevice_{label}{player}"
+            print(f"  {key.ljust(20)} = SDL-{sdl_index}/Button{button_num}")
     print()
     print("Open PCSX2 → Settings → Controllers → USB to confirm.")
 
