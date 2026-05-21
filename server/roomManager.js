@@ -79,6 +79,7 @@ function handleJoin(ws, data, wss, onButtonPress) {
     state.wsToSlot.set(ws, existingSlot);
     ws.buzzSlot = existingSlot;
     ws.on('message', makeMessageHandler(ws, existingSlot, onButtonPress));
+    console.log(`[player] "${name}" reconnected → slot ${existingSlot}`);
     send(ws, { type: 'joined', slot: existingSlot, playerName: name, roomCode: state.roomCode });
     broadcastPlayers(wss);
     return;
@@ -86,6 +87,7 @@ function handleJoin(ws, data, wss, onButtonPress) {
 
   const slot = findFreeSlot();
   if (slot === null) {
+    console.log(`[player] "${name}" tried to join but room is full`);
     send(ws, { type: 'error', code: 'ROOM_FULL' });
     return;
   }
@@ -96,6 +98,7 @@ function handleJoin(ws, data, wss, onButtonPress) {
 
   ws.on('message', makeMessageHandler(ws, slot, onButtonPress));
 
+  console.log(`[player] "${name}" joined → slot ${slot}  (${state.slots.size}/4 connected)`);
   send(ws, { type: 'joined', slot, playerName: name, roomCode: state.roomCode });
   broadcastPlayers(wss);
 }
@@ -108,6 +111,10 @@ function makeMessageHandler(ws, slot, onButtonPress) {
     if (msg.type === 'button') {
       const button = msg.button;
       const buttonState = msg.state === 1 ? 1 : 0;
+      if (buttonState === 1) {
+        const player = state.slots.get(slot);
+        console.log(`[button] P${slot} "${player ? player.name : '?'}" → ${button.toUpperCase()}`);
+      }
       onButtonPress(slot, button, buttonState);
     } else if (msg.type === 'pong') {
       ws.isAlive = true;
@@ -123,9 +130,12 @@ function handleDisconnect(ws, wss) {
   const player = state.slots.get(slot);
   if (!player) return;
 
+  console.log(`[player] "${player.name}" disconnected from slot ${slot} (slot held for 60s)`);
+
   // Hold the slot for 60s to allow reconnect by same name
   player.ws = null;
   player.reconnectTimer = setTimeout(() => {
+    console.log(`[player] Slot ${slot} ("${player.name}") released after timeout`);
     state.slots.delete(slot);
     broadcastPlayers(wss);
   }, RECONNECT_GRACE_MS);
