@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>Buzzd — Host</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- QR code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="screen" style="justify-content: flex-start; padding-top: 40px;">
+<div class="host-container">
+
+  <h1>BUZZD Host</h1>
+
+  <!-- Setup section: enter ngrok URL -->
+  <div id="setup-section" class="card">
+    <h2>Connect to Server</h2>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+      Start <code>node server.js</code> on your Steam Deck, then paste the ngrok URL below.
+    </p>
+    <div class="ngrok-form">
+      <input
+        id="ngrok-input"
+        type="url"
+        placeholder="https://abc123.ngrok-free.app"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button id="btn-connect-server" class="btn-connect">Connect</button>
+    </div>
+    <p id="server-status" class="status-msg" style="margin-top:10px;"></p>
+  </div>
+
+  <!-- Dashboard (hidden until connected) -->
+  <div id="dash-section" class="hidden">
+
+    <div class="card">
+      <h2>Room Code</h2>
+      <div id="room-code" class="room-code">——</div>
+    </div>
+
+    <div class="card">
+      <h2>Players</h2>
+      <div class="player-slots">
+        <div class="player-slot">
+          <span class="slot-num">1</span>
+          <span class="slot-name slot-empty">Empty</span>
+          <span class="slot-dot"></span>
+        </div>
+        <div class="player-slot">
+          <span class="slot-num">2</span>
+          <span class="slot-name slot-empty">Empty</span>
+          <span class="slot-dot"></span>
+        </div>
+        <div class="player-slot">
+          <span class="slot-num">3</span>
+          <span class="slot-name slot-empty">Empty</span>
+          <span class="slot-dot"></span>
+        </div>
+        <div class="player-slot">
+          <span class="slot-num">4</span>
+          <span class="slot-name slot-empty">Empty</span>
+          <span class="slot-dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="qr-container">
+      <h2>Invite Players</h2>
+      <div id="qr-canvas"></div>
+      <p id="join-url-text" class="join-url-box"></p>
+      <div style="display:flex; gap:8px; justify-content:center;">
+        <button id="btn-copy" class="btn-copy">Copy Link</button>
+        <button id="btn-reset" class="btn-copy">Change URL</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script src="host.js"></script>
+</body>
+</html>
