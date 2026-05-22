@@ -84,14 +84,8 @@ function pressButton(playerSlot, buttonName, state) {
   const buttonIndex = BUTTON_INDEX[buttonName];
   if (buttonIndex === undefined) return;
 
-  if (fallbackMode || !proc) {
-    const label = state === 1 ? 'PRESS' : 'RELEASE';
-    console.log(`[controller:fallback] P${playerSlot} ${buttonName.toUpperCase()} ${label}`);
-    return;
-  }
+  if (fallbackMode || !proc) return;
 
-  const label = state === 1 ? 'PRESS' : 'RELEASE';
-  console.log(`[controller] P${playerSlot} button${buttonIndex} (${buttonName}) ${label}`);
   const msg = JSON.stringify({ slot: playerSlot, buttonIndex, state });
   try {
     proc.stdin.write(msg + '\n');

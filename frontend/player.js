@@ -18,6 +18,9 @@ let devTargetSlot = 1;
 // ── DOM refs ─────────────────────────────────────────────────────────────────
 
 const joinScreen = document.getElementById('join-screen');
+const lobbyScreen = document.getElementById('lobby-screen');
+const lobbyPlayersEl = document.getElementById('lobby-players');
+const lobbyInfoEl = document.getElementById('lobby-info');
 const controllerScreen = document.getElementById('controller-screen');
 const reconnectOverlay = document.getElementById('reconnect-overlay');
 const reconnectMsg = document.getElementById('reconnect-msg');
@@ -111,10 +114,18 @@ function handleMessage(msg) {
       hasJoined = true;
       reconnectAttempt = 0;
       reconnectOverlay.classList.add('hidden');
-      showController(msg.slot, msg.playerName);
+      if (msg.gameStarted) {
+        showController(msg.slot, msg.playerName);
+      } else {
+        showLobby(msg.slot, msg.playerName);
+      }
       break;
 
-    case 'error':
+    case 'start':
+      showController(ownSlot, playerName);
+      break;
+
+    case 'error': {
       btnJoin.disabled = false;
       const messages = {
         ROOM_FULL: 'Room is full (4 players max).',
@@ -124,6 +135,7 @@ function handleMessage(msg) {
       };
       setStatus(messages[msg.code] || 'Connection error.', 'error');
       break;
+    }
 
     case 'ping':
       if (ws && ws.readyState === WebSocket.OPEN) {
@@ -132,7 +144,7 @@ function handleMessage(msg) {
       break;
 
     case 'players':
-      // Could show connected count if desired
+      updateLobbyPlayers(msg.players);
       break;
   }
 }
@@ -163,11 +175,37 @@ function scheduleReconnect() {
   }, delay);
 }
 
+// ── Lobby UI ──────────────────────────────────────────────────────────────────
+
+function showLobby(slot, name) {
+  ownSlot = slot;
+  joinScreen.classList.add('hidden');
+  lobbyScreen.classList.remove('hidden');
+  lobbyInfoEl.innerHTML = `You are <strong>Player ${slot}</strong> — <strong>${name}</strong>`;
+}
+
+function updateLobbyPlayers(players) {
+  if (lobbyScreen.classList.contains('hidden')) return;
+  lobbyPlayersEl.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const p = players.find((pl) => pl.slot === i);
+    const item = document.createElement('div');
+    item.className = 'lobby-player-item';
+    item.innerHTML = `
+      <span class="slot-num">${i}</span>
+      <span class="slot-name${p ? '' : ' slot-empty'}">${p ? p.name : 'Empty'}</span>
+      <span class="slot-dot${p && p.connected ? ' connected' : ''}"></span>
+    `;
+    lobbyPlayersEl.appendChild(item);
+  }
+}
+
 // ── Controller UI ─────────────────────────────────────────────────────────────
 
 function showController(slot, name) {
   ownSlot = slot;
   joinScreen.classList.add('hidden');
+  lobbyScreen.classList.add('hidden');
   controllerScreen.classList.remove('hidden');
   playerInfo.innerHTML = `Player <strong>${slot}</strong> — <strong>${name}</strong>`;
 

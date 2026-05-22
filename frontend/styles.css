@@ -479,3 +479,67 @@ html, body {
 }
 
 .btn-copy:hover { border-color: var(--text-muted); }
+
+/* ── Start Game button ──────────────────────────────────────────────────────── */
+
+.btn-start-game {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--buzz-green);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-start-game:active { transform: scale(0.97); opacity: 0.85; }
+.btn-start-game:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Lobby screen ───────────────────────────────────────────────────────────── */
+
+.lobby-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.lobby-card h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: var(--buzz-red);
+}
+
+.lobby-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.lobby-player-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-player-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 0.95rem;
+}

@@ -19,6 +19,7 @@ const state = {
   // ws instance → slot number
   wsToSlot: new Map(),
   ngrokUrl: null,
+  gameStarted: false,
 };
 
 function findFreeSlot() {
@@ -80,7 +81,7 @@ function handleJoin(ws, data, wss, onButtonPress) {
     ws.buzzSlot = existingSlot;
     ws.on('message', makeMessageHandler(ws, existingSlot, onButtonPress));
     console.log(`[player] "${name}" reconnected → slot ${existingSlot}`);
-    send(ws, { type: 'joined', slot: existingSlot, playerName: name, roomCode: state.roomCode });
+    send(ws, { type: 'joined', slot: existingSlot, playerName: name, roomCode: state.roomCode, gameStarted: state.gameStarted });
     broadcastPlayers(wss);
     return;
   }
@@ -99,7 +100,7 @@ function handleJoin(ws, data, wss, onButtonPress) {
   ws.on('message', makeMessageHandler(ws, slot, onButtonPress));
 
   console.log(`[player] "${name}" joined → slot ${slot}  (${state.slots.size}/4 connected)`);
-  send(ws, { type: 'joined', slot, playerName: name, roomCode: state.roomCode });
+  send(ws, { type: 'joined', slot, playerName: name, roomCode: state.roomCode, gameStarted: state.gameStarted });
   broadcastPlayers(wss);
 }
 
@@ -162,11 +163,21 @@ function getStatus() {
     players: getPlayers(),
     uptime: Math.floor((Date.now() - startTime) / 1000),
     ngrokUrl: state.ngrokUrl,
+    gameStarted: state.gameStarted,
   };
 }
 
 function setNgrokUrl(url) {
   state.ngrokUrl = url;
+}
+
+function startGame(wss) {
+  state.gameStarted = true;
+  const msg = JSON.stringify({ type: 'start' });
+  for (const client of wss.clients) {
+    if (client.readyState === client.OPEN) client.send(msg);
+  }
+  console.log('[server] Game started — all clients notified');
 }
 
 module.exports = {
@@ -175,4 +186,5 @@ module.exports = {
   handleDisconnect,
   getStatus,
   setNgrokUrl,
+  startGame,
 };

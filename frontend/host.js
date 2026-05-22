@@ -19,11 +19,28 @@ const joinUrlEl = document.getElementById('join-url-text');
 const btnCopy = document.getElementById('btn-copy');
 const qrCanvas = document.getElementById('qr-canvas');
 const playerSlots = document.querySelectorAll('.player-slot');
+const btnStartGame = document.getElementById('btn-start-game');
+const startStatus = document.getElementById('start-status');
 
 // ── Connect to server ─────────────────────────────────────────────────────────
 
 btnConnect.addEventListener('click', connectToServer);
 ngrokInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') connectToServer(); });
+
+// Auto-connect if ?server= param is present (e.g. link from server banner)
+(function autoConnect() {
+  const srv = new URL(location.href).searchParams.get('server');
+  if (!srv) return;
+  setupSection.classList.add('hidden');
+  ngrokBase = srv.startsWith('http') ? srv.replace(/\/$/, '') : `https://${srv}`;
+  fetchStatus()
+    .then(onServerConnected)
+    .catch((err) => {
+      setupSection.classList.remove('hidden');
+      serverStatus.textContent = `Auto-connect failed: ${err.message}`;
+      serverStatus.className = 'status-msg error';
+    });
+})();
 
 async function connectToServer() {
   const raw = ngrokInput.value.trim().replace(/\/$/, '');
@@ -139,6 +156,28 @@ btnCopy.addEventListener('click', async () => {
     range.selectNode(joinUrlEl);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
+  }
+});
+
+// ── Start Game ────────────────────────────────────────────────────────────────
+
+btnStartGame.addEventListener('click', async () => {
+  btnStartGame.disabled = true;
+  startStatus.textContent = 'Starting…';
+  startStatus.className = 'status-msg';
+  try {
+    const res = await fetch(`${ngrokBase}/start`, {
+      method: 'POST',
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    startStatus.textContent = 'Game started!';
+    startStatus.className = 'status-msg ok';
+    btnStartGame.textContent = 'Game Running';
+  } catch (err) {
+    startStatus.textContent = `Failed: ${err.message}`;
+    startStatus.className = 'status-msg error';
+    btnStartGame.disabled = false;
   }
 });
 
