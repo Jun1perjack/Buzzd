@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "missing": [{ "type": "query", "key": "server" }],
+      "destination": "/home",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     { "source": "/host", "destination": "/host.html" },
     { "source": "/home", "destination": "/home.html" }
