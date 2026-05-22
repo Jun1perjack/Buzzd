@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const http = require('http');
+const path = require('path');
 const { spawn } = require('child_process');
 const express = require('express');
 const cors = require('cors');
@@ -43,10 +44,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve the frontend locally — avoids mixed-content issues when launched from Steam
+const FRONTEND_DIR = path.join(__dirname, '..');
+app.get('/',     (_req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
+app.get('/host', (_req, res) => res.sendFile(path.join(FRONTEND_DIR, 'host.html')));
+app.use(express.static(FRONTEND_DIR));
+
 app.get('/health', (_req, res) => res.send('OK'));
 
 app.get('/status', (_req, res) => {
-  res.json(roomManager.getStatus());
+  // Include vercelUrl so the host page can build correct player join links
+  res.json({ ...roomManager.getStatus(), vercelUrl: process.env.VERCEL_URL || null });
 });
 
 app.get('/games', (_req, res) => {

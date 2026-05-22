@@ -30,10 +30,8 @@ for i in $(seq 1 30); do
   sleep 1
 done
 
-# Build the host URL — browser is on the same machine so localhost works
-VERCEL_URL=$(grep -m1 '^VERCEL_URL=' "$BUZZD_DIR/server/.env" | cut -d= -f2 | tr -d '[:space:]')
-SERVER_PARAM=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "http://localhost:$PORT")
-HOST_URL="${VERCEL_URL}/host?server=${SERVER_PARAM}"
+# Host page is served locally — no mixed-content issues, no internet required
+HOST_URL="http://localhost:$PORT/host"
 
 # Launch Chromium in kiosk mode — tries common install locations in order
 KIOSK="--kiosk --no-first-run --disable-features=TranslateUI --noerrdialogs"
