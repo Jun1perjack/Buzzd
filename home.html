@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0D0D1A">
+  <meta name="description" content="Turn any phone into a Buzz! controller. Self-hosted multiplayer Buzz! PS2 on Steam Deck — no dongles, no apps, just scan and play.">
+  <title>Buzzd — Buzz! Controller for Steam Deck</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:    #E8003D;
+      --orange: #FF7200;
+      --yellow: #FFD500;
+      --bg:     #0D0D1A;
+      --card:   #1A1A35;
+      --surf:   #22224A;
+      --text:   #F0F0FF;
+      --muted:  #7070A0;
+      --p1: #FFD500; --p2: #3B9EFF; --p3: #4CAF50; --p4: #C850F8;
+      --radius: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, .fredoka {
+      font-family: 'Fredoka One', system-ui, sans-serif;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Scroll-reveal ─────────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+    /* ── Nav ───────────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(13,13,26,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: 0.9rem; font-weight: 600; color: var(--muted); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav {
+      padding: 8px 20px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #fff; font-weight: 700; font-size: 0.85rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-nav:hover { opacity: 0.88; transform: scale(1.02); }
+
+    /* ── Hero ──────────────────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100dvh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Star field */
+    .stars {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 20% 40%, rgba(255,114,0,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 75% 75%, rgba(232,0,61,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 25%, rgba(255,213,0,0.2) 0%, transparent 100%);
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 20px;
+      background: rgba(232,0,61,0.15); border: 1px solid rgba(232,0,61,0.3);
+      font-size: 0.8rem; font-weight: 600; color: #ff6688;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(4rem, 14vw, 9rem);
+      background: linear-gradient(135deg, var(--orange) 0%, var(--red) 60%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 40px rgba(232,0,61,0.35));
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: var(--muted); max-width: 540px;
+      margin: 0 auto 40px;
+    }
+    .hero-sub strong { color: var(--text); }
+
+    .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .btn-primary {
+      padding: 14px 32px; border-radius: 30px;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #fff; font-weight: 700; font-size: 1rem;
+      transition: transform 0.1s, opacity 0.15s;
+      box-shadow: 0 4px 24px rgba(232,0,61,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.92; }
+
+    .btn-secondary {
+      padding: 14px 32px; border-radius: 30px;
+      border: 2px solid rgba(255,255,255,0.15);
+      color: var(--text); font-weight: 600; font-size: 1rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
+
+    .hero-scroll {
+      margin-top: 64px; color: var(--muted);
+      font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+    @media (prefers-reduced-motion: reduce) { .hero-scroll { animation: none; } }
+
+    /* ── Section shell ─────────────────────────────────────────────────────── */
+    section { padding: clamp(64px, 10vw, 120px) clamp(20px, 6vw, 80px); }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--orange);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 1.05rem; max-width: 520px;
+      margin-bottom: 56px;
+    }
+    .center { text-align: center; margin-inline: auto; }
+
+    /* ── How it works ──────────────────────────────────────────────────────── */
+    #how { background: var(--card); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px; max-width: 960px; margin-inline: auto;
+    }
+
+    .step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 16px; position: relative;
+    }
+
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fredoka One', sans-serif; font-size: 1.6rem; color: #fff;
+      box-shadow: 0 0 24px rgba(232,0,61,0.35);
+      flex-shrink: 0;
+    }
+
+    .step-icon { font-size: 2.2rem; }
+
+    .step h3 { font-size: 1.2rem; }
+    .step p { color: var(--muted); font-size: 0.92rem; max-width: 200px; }
+
+    /* Arrow between steps on wide screens */
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute; right: -22px; top: 20px;
+      color: rgba(255,255,255,0.15); font-size: 1.5rem;
+    }
+    @media (max-width: 700px) { .step::after { display: none; } }
+
+    /* ── Device showcase ───────────────────────────────────────────────────── */
+    #devices {
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .devices-wrap {
+      display: flex; gap: 40px; align-items: flex-end;
+      justify-content: center; flex-wrap: wrap;
+      max-width: 1200px; margin-inline: auto;
+    }
+
+    /* ── Steam Deck mockup ── */
+    .deck-wrap { position: relative; }
+
+    .deck {
+      width: 560px; height: 280px;
+      background: #111122;
+      border-radius: 40px 40px 40px 40px / 60px 60px 40px 40px;
+      border: 2px solid #333;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Left grip */
+    .deck::before {
+      content: '';
+      position: absolute; left: -22px; top: 40px;
+      width: 36px; height: 160px;
+      background: #111122; border: 2px solid #333;
+      border-radius: 20px 0 0 24px;
+    }
+    /* Right grip */
+    .deck::after {
+      content: '';
+      position: absolute; right: -22px; top: 40px;
+      width: 36px; height: 160px;
+      background: #111122; border: 2px solid #333;
+      border-radius: 0 20px 24px 0;
+    }
+
+    .deck-screen {
+      width: 400px; height: 220px;
+      background: var(--bg); border-radius: 8px;
+      overflow: hidden; position: relative;
+      border: 1px solid #222;
+    }
+
+    /* Trackpads */
+    .deck-trackpad-l, .deck-trackpad-r {
+      position: absolute; bottom: 30px;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #1a1a2e; border: 1px solid #2a2a4a;
+    }
+    .deck-trackpad-l { left: 24px; }
+    .deck-trackpad-r { right: 24px; }
+
+    /* Face buttons (right side) */
+    .deck-buttons {
+      position: absolute; right: 28px; top: 50%;
+      transform: translateY(-50%);
+      width: 32px; height: 32px; position: absolute;
+    }
+
+    /* Left stick, right stick dots */
+    .deck-stick-l, .deck-stick-r {
+      position: absolute; top: 30px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #1e1e3e; border: 1px solid #333;
+    }
+    .deck-stick-l { left: 70px; }
+    .deck-stick-r { right: 70px; }
+
+    /* Mini lobby UI inside Deck screen */
+    .lobby-mini {
+      width: 100%; height: 100%;
+      display: grid; grid-template-columns: 130px 1fr;
+      gap: 6px; padding: 8px;
+      background: var(--bg);
+      font-size: 0; /* hide any accidental text nodes */
+    }
+
+    .lobby-mini-left {
+      background: var(--card); border-radius: 6px;
+      display: flex; flex-direction: column;
+      align-items: center; padding: 8px 6px; gap: 6px;
+    }
+
+    .lobby-qr {
+      width: 72px; height: 72px;
+      background: white; border-radius: 4px;
+      display: grid; grid-template-columns: repeat(7,1fr); gap: 1px;
+      padding: 4px;
+    }
+    .lobby-qr-cell {
+      border-radius: 1px;
+      background: #000;
+    }
+    /* Randomly-looking QR pattern using nth-child */
+    .lobby-qr-cell:nth-child(odd) { opacity: 0; }
+    .lobby-qr-cell:nth-child(3n) { opacity: 1; }
+    .lobby-qr-cell:nth-child(5n+1) { opacity: 1; }
+    .lobby-qr-cell:nth-child(7n+2) { opacity: 0.2; }
+
+    .lobby-qr-label {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 8px; color: var(--muted); text-align: center;
+      -webkit-text-fill-color: var(--muted);
+    }
+
+    .lobby-mini-right {
+      background: var(--card); border-radius: 6px;
+      padding: 8px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+
+    .lobby-mini-title {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 16px; letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 2px;
+    }
+
+    .lobby-room {
+      font-family: monospace; font-size: 11px;
+      color: var(--text); letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(255,114,0,0.6);
+    }
+
+    .lobby-slot {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--bg); border-radius: 4px;
+      padding: 3px 6px;
+    }
+    .lobby-slot-num { font-size: 9px; font-weight: 700; color: var(--muted); width: 10px; }
+    .lobby-slot-name { font-size: 9px; color: var(--text); flex: 1; }
+    .lobby-slot-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* Deck label below */
+    .device-label {
+      text-align: center; margin-top: 16px;
+      font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Phone mockups ── */
+    .phones-wrap {
+      display: flex; gap: 24px; align-items: flex-end;
+    }
+
+    .phone {
+      width: 120px; height: 230px;
+      background: var(--card);
+      border-radius: 22px;
+      border: 2px solid var(--surf);
+      overflow: hidden; position: relative;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column;
+      transition: transform 0.3s;
+    }
+    .phone:hover { transform: translateY(-6px); }
+    .phone.p1 { border-color: var(--p1); box-shadow: 0 16px 48px rgba(255,213,0,0.15); }
+    .phone.p2 { border-color: var(--p2); box-shadow: 0 16px 48px rgba(59,158,255,0.15); transform: translateY(12px); }
+
+    .phone-notch {
+      width: 40px; height: 8px; background: #0a0a18;
+      border-radius: 0 0 6px 6px; margin: 0 auto 4px;
+      flex-shrink: 0;
+    }
+
+    .phone-screen {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: space-around;
+      padding: 6px;
+      background: var(--bg);
+    }
+
+    .phone-player-info {
+      font-size: 7px; color: var(--muted); text-align: center;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    .phone-buzz {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ff3366, #aa0022);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(232,0,61,0.5), 0 0 0 4px rgba(232,0,61,0.15);
+    }
+    .phone-buzz-text {
+      font-family: 'Fredoka One', sans-serif; font-size: 11px; color: #fff; letter-spacing: 0.5px;
+    }
+
+    .phone-answers {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4px; width: 100%;
+    }
+    .phone-ans {
+      height: 22px; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6px; font-weight: 800; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Monitor mockup ── */
+    .monitor-wrap { display: flex; flex-direction: column; align-items: center; }
+
+    .monitor {
+      width: 320px; height: 210px;
+      background: #0a0a18;
+      border: 3px solid #2a2a4a;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+    }
+
+    .monitor-bar {
+      height: 24px; background: #111128;
+      border-bottom: 1px solid #1e1e3e;
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 10px;
+    }
+    .monitor-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .monitor-terminal {
+      padding: 10px 12px;
+      font-family: monospace; font-size: 9px;
+      line-height: 1.7; color: #4CAF50;
+    }
+    .monitor-terminal .dim { color: #444; }
+    .monitor-terminal .accent { color: var(--orange); }
+    .monitor-terminal .white { color: #aaa; }
+    .monitor-terminal .red { color: var(--red); }
+    .monitor-terminal .cursor {
+      display: inline-block; width: 6px; height: 10px;
+      background: #4CAF50; animation: blink 1s step-end infinite;
+      vertical-align: middle;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+
+    .monitor-stand-neck {
+      width: 40px; height: 20px; background: #1a1a2e;
+      margin: 0 auto;
+      border-left: 3px solid #2a2a4a; border-right: 3px solid #2a2a4a;
+    }
+    .monitor-stand-base {
+      width: 120px; height: 12px; background: #1a1a2e;
+      border-radius: 0 0 8px 8px;
+      border: 3px solid #2a2a4a; border-top: none;
+      margin: 0 auto;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────────────── */
+    #features { background: var(--card); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px; max-width: 1100px; margin-inline: auto;
+    }
+
+    .feature-card {
+      background: var(--surf); border-radius: var(--radius);
+      padding: 28px 24px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(255,114,0,0.3); transform: translateY(-4px); }
+    .feature-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .feature-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── Setup ─────────────────────────────────────────────────────────────── */
+    #setup { background: var(--bg); }
+
+    .setup-steps {
+      display: flex; flex-direction: column; gap: 24px;
+      max-width: 680px; margin-inline: auto;
+    }
+
+    .setup-step {
+      display: grid; grid-template-columns: 48px 1fr;
+      gap: 20px; align-items: start;
+    }
+
+    .setup-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fredoka One', sans-serif; font-size: 1.4rem; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(232,0,61,0.3);
+    }
+
+    .setup-content h3 { font-size: 1.15rem; margin-bottom: 8px; padding-top: 10px; }
+
+    pre {
+      background: #080812; border: 1px solid #1e1e3e;
+      border-radius: 10px; padding: 14px 18px;
+      font-size: 0.82rem; overflow-x: auto;
+      color: #4CAF50; line-height: 1.7;
+    }
+    pre .comment { color: #444; }
+    pre .cmd { color: var(--orange); }
+
+    .setup-note { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer {
+      background: #080812; border-top: 1px solid #1a1a2e;
+      padding: 48px 40px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 20px; text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Fredoka One', sans-serif; font-size: 2rem;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .footer-dots { display: flex; gap: 10px; }
+    .footer-dot { width: 14px; height: 14px; border-radius: 50%; }
+
+    .footer-links { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+    .footer-links a {
+      font-size: 0.88rem; color: var(--muted);
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-copy { font-size: 0.8rem; color: #333; }
+
+    /* ── Responsive ────────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .deck { width: 420px; height: 220px; }
+      .deck-screen { width: 300px; height: 172px; }
+      .deck-stick-l { left: 50px; }
+      .deck-stick-r { right: 50px; }
+      .lobby-mini { grid-template-columns: 100px 1fr; }
+      .lobby-qr { width: 56px; height: 56px; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 14px 20px; }
+      .nav-links { gap: 16px; }
+      .deck { display: none; }
+      .devices-wrap { gap: 24px; }
+      .phones-wrap { gap: 16px; }
+      .phone { width: 100px; height: 200px; }
+      .phone-buzz { width: 52px; height: 52px; }
+      .monitor { width: 260px; height: 170px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <span class="nav-logo">BUZZD</span>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#setup">Setup</a>
+    <a href="https://github.com/jun1perjack/buzzd" target="_blank" rel="noopener" class="btn-nav">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="stars" aria-hidden="true"></div>
+  <div class="hero-badge">🎮 For Steam Deck + PCSX2</div>
+  <h1 class="fredoka">BUZZD</h1>
+  <p class="hero-sub">
+    Turn any phone into a <strong>Buzz! controller</strong>.<br>
+    No dongles, no apps — scan a QR code and play.
+  </p>
+  <div class="hero-ctas">
+    <a href="https://github.com/jun1perjack/buzzd" target="_blank" rel="noopener" class="btn-primary">Get Started on GitHub</a>
+    <a href="#how" class="btn-secondary">See how it works</a>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span>scroll</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section id="how">
+  <div class="section-label center">Simple by design</div>
+  <h2 class="section-title center reveal">How it works</h2>
+  <p class="section-sub center reveal">Three steps from off to playing. No configuration nightmare.</p>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-icon">🚀</div>
+      <h3>Launch from Steam</h3>
+      <p>Buzzd appears as a game. Launch it — the server starts and a fullscreen lobby with QR code appears on your TV.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-icon">📱</div>
+      <h3>Players scan & join</h3>
+      <p>Anyone with a phone scans the QR, enters a name, and gets a controller. Player 1 picks the game.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-icon">🎉</div>
+      <h3>Play!</h3>
+      <p>PCSX2 launches with the selected game. Every phone shows the BUZZ button and four colour answers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Device showcase ── -->
+<section id="devices">
+  <div class="section-label center">Works everywhere</div>
+  <h2 class="section-title center reveal">Your living room, connected</h2>
+  <p class="section-sub center reveal">The lobby lives on your Steam Deck or Linux machine. Controllers run in any phone browser.</p>
+
+  <div class="devices-wrap">
+
+    <!-- Steam Deck -->
+    <div class="deck-wrap reveal">
+      <div class="deck" aria-label="Steam Deck showing BUZZD lobby">
+        <div class="deck-stick-l" aria-hidden="true"></div>
+        <div class="deck-stick-r" aria-hidden="true"></div>
+        <div class="deck-trackpad-l" aria-hidden="true"></div>
+        <div class="deck-trackpad-r" aria-hidden="true"></div>
+
+        <div class="deck-screen">
+          <div class="lobby-mini" aria-label="Buzzd host lobby UI">
+            <!-- Left: QR -->
+            <div class="lobby-mini-left">
+              <span class="lobby-qr-label fredoka">SCAN TO JOIN</span>
+              <div class="lobby-qr" aria-hidden="true">
+                <!-- 49 cells for a 7×7 fake QR -->
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+                <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
+              </div>
+            </div>
+            <!-- Right: players -->
+            <div class="lobby-mini-right">
+              <div class="lobby-mini-title">BUZZD</div>
+              <div class="lobby-room">ROOM: F962DC</div>
+              <div class="lobby-slot">
+                <span class="lobby-slot-num">1</span>
+                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">👑 Jack</span>
+                <span class="lobby-slot-dot" style="background:var(--p1)"></span>
+              </div>
+              <div class="lobby-slot">
+                <span class="lobby-slot-num">2</span>
+                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">Sarah</span>
+                <span class="lobby-slot-dot" style="background:var(--p2)"></span>
+              </div>
+              <div class="lobby-slot">
+                <span class="lobby-slot-num">3</span>
+                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">Mike</span>
+                <span class="lobby-slot-dot" style="background:var(--p3)"></span>
+              </div>
+              <div class="lobby-slot">
+                <span class="lobby-slot-num">4</span>
+                <span class="lobby-slot-name" style="font-size:9px;color:var(--muted);font-style:italic;">Empty</span>
+                <span class="lobby-slot-dot" style="background:#333"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="device-label">Steam Deck / Linux</div>
+    </div>
+
+    <!-- Phones -->
+    <div class="phones-wrap reveal">
+      <!-- Phone 1 -->
+      <div class="phone p1" aria-label="Player 1 phone controller">
+        <div class="phone-notch" aria-hidden="true"></div>
+        <div class="phone-screen">
+          <div class="phone-player-info">👑 Player 1 · Jack</div>
+          <div class="phone-buzz">
+            <span class="phone-buzz-text">BUZZ!</span>
+          </div>
+          <div class="phone-answers">
+            <div class="phone-ans" style="background:#3B9EFF;color:#fff;">Blue</div>
+            <div class="phone-ans" style="background:#FF7200;color:#fff;">Orng</div>
+            <div class="phone-ans" style="background:#4CAF50;color:#fff;">Grn</div>
+            <div class="phone-ans" style="background:#FFD500;color:#111;">Ylw</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2 -->
+      <div class="phone p2" aria-label="Player 2 phone controller">
+        <div class="phone-notch" aria-hidden="true"></div>
+        <div class="phone-screen">
+          <div class="phone-player-info">Player 2 · Sarah</div>
+          <div class="phone-buzz">
+            <span class="phone-buzz-text">BUZZ!</span>
+          </div>
+          <div class="phone-answers">
+            <div class="phone-ans" style="background:#3B9EFF;color:#fff;">Blue</div>
+            <div class="phone-ans" style="background:#FF7200;color:#fff;">Orng</div>
+            <div class="phone-ans" style="background:#4CAF50;color:#fff;">Grn</div>
+            <div class="phone-ans" style="background:#FFD500;color:#111;">Ylw</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="device-label" style="margin-top:16px;">Any phone browser</div>
+    </div>
+
+    <!-- Monitor -->
+    <div class="monitor-wrap reveal">
+      <div class="monitor" aria-label="Linux terminal showing Buzzd server">
+        <div class="monitor-bar" aria-hidden="true">
+          <div class="monitor-dot" style="background:#ff5f57"></div>
+          <div class="monitor-dot" style="background:#febc2e"></div>
+          <div class="monitor-dot" style="background:#28c840"></div>
+        </div>
+        <div class="monitor-terminal" aria-label="Server output">
+          <span class="dim">$ </span><span class="accent">./launch.sh</span><br>
+          <span class="dim">Starting server...</span><br>
+          <span class="white">╔══════════════════╗</span><br>
+          <span class="white">║  BUZZD CONTROLLER║</span><br>
+          <span class="white">╚══════════════════╝</span><br>
+          <span class="dim">Room code : </span><span class="accent">F962DC</span><br>
+          <span class="dim">Ngrok     : </span><span style="color:#3B9EFF">wss://…</span><br>
+          <br>
+          <span class="dim">Waiting for players…</span><br>
+          <span class="white">[player] "Jack" → slot 1</span><br>
+          <span class="white">[player] "Sarah" → slot 2</span><br>
+          <span class="accent">[server] Game started!</span>
+          <span class="cursor" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="monitor-stand-neck" aria-hidden="true"></div>
+      <div class="monitor-stand-base" aria-hidden="true"></div>
+      <div class="device-label">Linux desktop</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="section-label center">Everything you need</div>
+  <h2 class="section-title center reveal">Built for the couch</h2>
+  <p class="section-sub center reveal">No compromises, no faff. Just the bits that actually matter.</p>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">📱</span>
+      <h3>Any phone, any browser</h3>
+      <p>No app download, no pairing. Players scan a QR code and they're in. Works on iOS, Android, anything with a browser.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">👥</span>
+      <h3>Up to 4 players</h3>
+      <p>Each player gets their own slot with a BUZZ button and four colour answer buttons. Exactly like the real thing.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🎮</span>
+      <h3>Game picker with cover art</h3>
+      <p>The host browses your ROM library from their phone. SteamGridDB cover art loads automatically in the background.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🚀</span>
+      <h3>Launches from Steam</h3>
+      <p>Appears as a game in your Steam library. Launch it, scan, and play — the lobby opens fullscreen on your TV.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🌐</span>
+      <h3>Play over the internet</h3>
+      <p>ngrok tunnelling means players don't need to be on the same Wi-Fi. Friends can join from anywhere.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔌</span>
+      <h3>Virtual controller</h3>
+      <p>Uses Linux uinput to create a virtual gamepad. No PCSX2 plugins needed — it just looks like real hardware.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Setup ── -->
+<section id="setup">
+  <div class="section-label center">Get going</div>
+  <h2 class="section-title center reveal">Three commands</h2>
+  <p class="section-sub center reveal">The setup script handles everything else — PCSX2 detection, ROM folder, cover art keys.</p>
+
+  <div class="setup-steps">
+    <div class="setup-step reveal">
+      <div class="setup-num">1</div>
+      <div class="setup-content">
+        <h3>Clone and run setup</h3>
+        <pre><span class="cmd">git clone</span> https://github.com/jun1perjack/buzzd ~/Buzzd
+<span class="cmd">cd</span> ~/Buzzd && <span class="cmd">./setup.sh</span></pre>
+        <p class="setup-note">Detects your PCSX2 path and ROM folder automatically. Walks you through the rest.</p>
+      </div>
+    </div>
+
+    <div class="setup-step reveal">
+      <div class="setup-num">2</div>
+      <div class="setup-content">
+        <h3>Add to Steam</h3>
+        <pre><span class="comment"># Steam → Add a Game → Add a Non-Steam Game</span>
+<span class="comment"># Browse to ~/Buzzd/launch.sh → Add</span>
+<span class="comment"># Rename it "Buzzd", add artwork from steam-art/</span></pre>
+        <p class="setup-note">steam-art/ has a capsule, hero banner, and icon ready to go.</p>
+      </div>
+    </div>
+
+    <div class="setup-step reveal">
+      <div class="setup-num">3</div>
+      <div class="setup-content">
+        <h3>Play</h3>
+        <pre><span class="comment"># Launch Buzzd from Steam</span>
+<span class="comment"># Players scan QR → pick a game → play</span></pre>
+        <p class="setup-note">See the <a href="https://github.com/jun1perjack/buzzd#readme" style="color:var(--orange)">README</a> for ngrok setup, cover art keys, and troubleshooting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-logo">BUZZD</div>
+  <div class="footer-dots" aria-label="Player colours">
+    <div class="footer-dot" style="background:var(--p1)" aria-label="Player 1"></div>
+    <div class="footer-dot" style="background:var(--p2)" aria-label="Player 2"></div>
+    <div class="footer-dot" style="background:var(--p3)" aria-label="Player 3"></div>
+    <div class="footer-dot" style="background:var(--p4)" aria-label="Player 4"></div>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/jun1perjack/buzzd" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/jun1perjack/buzzd/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+    <a href="/host">Host Lobby</a>
+  </div>
+  <p class="footer-copy">Built for the couch. Tested on Buzz! The Music Quiz.</p>
+</footer>
+
+<script>
+  // Scroll-triggered reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
