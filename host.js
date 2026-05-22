@@ -27,12 +27,14 @@ const startStatus = document.getElementById('start-status');
 btnConnect.addEventListener('click', connectToServer);
 ngrokInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') connectToServer(); });
 
-// Auto-connect if ?server= param is present (e.g. link from server banner)
+// Auto-connect if ?server= param is present, or if we're running on localhost
+// (served directly from the Express server — no param needed)
 (function autoConnect() {
   const srv = new URL(location.href).searchParams.get('server');
-  if (!srv) return;
+  const target = srv || (location.hostname === 'localhost' ? location.origin : null);
+  if (!target) return;
   setupSection.classList.add('hidden');
-  ngrokBase = srv.startsWith('http') ? srv.replace(/\/$/, '') : `https://${srv}`;
+  ngrokBase = target.startsWith('http') ? target.replace(/\/$/, '') : `https://${target}`;
   fetchStatus()
     .then(onServerConnected)
     .catch((err) => {
