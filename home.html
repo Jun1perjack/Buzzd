@@ -23,551 +23,234 @@
       --p1: #FFD500; --p2: #3B9EFF; --p3: #4CAF50; --p4: #C850F8;
       --radius: 16px;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
-
-    h1, h2, h3, .fredoka {
-      font-family: 'Fredoka One', system-ui, sans-serif;
-      font-weight: 400;
-      line-height: 1.1;
-    }
-
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; line-height: 1.6; }
+    h1, h2, h3, .fredoka { font-family: 'Fredoka One', system-ui, sans-serif; font-weight: 400; line-height: 1.1; }
     a { color: inherit; text-decoration: none; }
 
+    /* ── Lucide icon sizing ────────────────────────────────────────────────── */
+    i[data-lucide] { display: inline-flex; align-items: center; }
+    .step-icon svg { width: 38px; height: 38px; stroke: var(--text); stroke-width: 1.5; fill: none; }
+    .feature-icon svg { width: 30px; height: 30px; stroke: var(--orange); stroke-width: 1.5; fill: none; }
+    .hero-badge svg { width: 14px; height: 14px; stroke: #ff6688; stroke-width: 2; fill: none; flex-shrink: 0; }
+
     /* ── Scroll-reveal ─────────────────────────────────────────────────────── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .reveal.visible { opacity: 1; transform: none; }
     @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 
     /* ── Nav ───────────────────────────────────────────────────────────────── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 40px;
-      background: rgba(13,13,26,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .nav-logo {
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, var(--orange), var(--red));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; background: rgba(13,13,26,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .nav-logo { font-family: 'Fredoka One', sans-serif; font-size: 1.5rem; background: linear-gradient(90deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .nav-links { display: flex; gap: 32px; align-items: center; }
     .nav-links a { font-size: 0.9rem; font-weight: 600; color: var(--muted); transition: color 0.15s; }
     .nav-links a:hover { color: var(--text); }
-    .btn-nav {
-      padding: 8px 20px; border-radius: 20px;
-      background: linear-gradient(135deg, var(--orange), var(--red));
-      color: #fff; font-weight: 700; font-size: 0.85rem;
-      transition: opacity 0.15s, transform 0.1s;
-    }
+    .btn-nav { padding: 8px 20px; border-radius: 20px; background: linear-gradient(135deg, var(--orange), var(--red)); color: #fff; font-weight: 700; font-size: 0.85rem; transition: opacity 0.15s, transform 0.1s; }
     .btn-nav:hover { opacity: 0.88; transform: scale(1.02); }
 
     /* ── Hero ──────────────────────────────────────────────────────────────── */
-    .hero {
-      min-height: 100dvh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-      position: relative; overflow: hidden;
-    }
-
-    /* Star field */
-    .stars {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.2) 0%, transparent 100%),
-        radial-gradient(1px 1px at 35% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(2px 2px at 20% 40%, rgba(255,114,0,0.3) 0%, transparent 100%),
-        radial-gradient(2px 2px at 75% 75%, rgba(232,0,61,0.3) 0%, transparent 100%),
-        radial-gradient(2px 2px at 50% 25%, rgba(255,213,0,0.2) 0%, transparent 100%);
-    }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 16px; border-radius: 20px;
-      background: rgba(232,0,61,0.15); border: 1px solid rgba(232,0,61,0.3);
-      font-size: 0.8rem; font-weight: 600; color: #ff6688;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      margin-bottom: 24px;
-    }
-
-    .hero h1 {
-      font-size: clamp(4rem, 14vw, 9rem);
-      background: linear-gradient(135deg, var(--orange) 0%, var(--red) 60%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 40px rgba(232,0,61,0.35));
-      margin-bottom: 16px;
-      letter-spacing: 2px;
-    }
-
-    .hero-sub {
-      font-size: clamp(1.1rem, 3vw, 1.5rem);
-      color: var(--muted); max-width: 540px;
-      margin: 0 auto 40px;
-    }
+    .hero { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
+    .stars { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%), radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.4) 0%, transparent 100%), radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 20% 40%, rgba(255,114,0,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 75% 75%, rgba(232,0,61,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 50% 25%, rgba(255,213,0,0.2) 0%, transparent 100%); }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; background: rgba(232,0,61,0.15); border: 1px solid rgba(232,0,61,0.3); font-size: 0.8rem; font-weight: 600; color: #ff6688; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 24px; }
+    .hero h1 { font-size: clamp(4rem, 14vw, 9rem); background: linear-gradient(135deg, var(--orange) 0%, var(--red) 60%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 40px rgba(232,0,61,0.35)); margin-bottom: 16px; letter-spacing: 2px; }
+    .hero-sub { font-size: clamp(1.1rem, 3vw, 1.5rem); color: var(--muted); max-width: 540px; margin: 0 auto 40px; }
     .hero-sub strong { color: var(--text); }
-
     .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-
-    .btn-primary {
-      padding: 14px 32px; border-radius: 30px;
-      background: linear-gradient(135deg, var(--orange), var(--red));
-      color: #fff; font-weight: 700; font-size: 1rem;
-      transition: transform 0.1s, opacity 0.15s;
-      box-shadow: 0 4px 24px rgba(232,0,61,0.3);
-    }
+    .btn-primary { padding: 14px 32px; border-radius: 30px; background: linear-gradient(135deg, var(--orange), var(--red)); color: #fff; font-weight: 700; font-size: 1rem; transition: transform 0.1s, opacity 0.15s; box-shadow: 0 4px 24px rgba(232,0,61,0.3); }
     .btn-primary:hover { transform: translateY(-2px); opacity: 0.92; }
-
-    .btn-secondary {
-      padding: 14px 32px; border-radius: 30px;
-      border: 2px solid rgba(255,255,255,0.15);
-      color: var(--text); font-weight: 600; font-size: 1rem;
-      transition: border-color 0.15s, background 0.15s;
-    }
+    .btn-secondary { padding: 14px 32px; border-radius: 30px; border: 2px solid rgba(255,255,255,0.15); color: var(--text); font-weight: 600; font-size: 1rem; transition: border-color 0.15s, background 0.15s; }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
-
-    .hero-scroll {
-      margin-top: 64px; color: var(--muted);
-      font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      animation: bounce 2s ease-in-out infinite;
-    }
+    .hero-scroll { margin-top: 64px; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: bounce 2s ease-in-out infinite; }
     @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
     @media (prefers-reduced-motion: reduce) { .hero-scroll { animation: none; } }
 
     /* ── Section shell ─────────────────────────────────────────────────────── */
     section { padding: clamp(64px, 10vw, 120px) clamp(20px, 6vw, 80px); }
-    .section-label {
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--orange);
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      margin-bottom: 16px;
-    }
-    .section-sub {
-      color: var(--muted); font-size: 1.05rem; max-width: 520px;
-      margin-bottom: 56px;
-    }
+    .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; }
+    .section-title { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 16px; }
+    .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 520px; margin-bottom: 56px; }
     .center { text-align: center; margin-inline: auto; }
 
     /* ── How it works ──────────────────────────────────────────────────────── */
     #how { background: var(--card); }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 32px; max-width: 960px; margin-inline: auto;
-    }
-
-    .step {
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center; gap: 16px; position: relative;
-    }
-
-    .step-num {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange), var(--red));
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Fredoka One', sans-serif; font-size: 1.6rem; color: #fff;
-      box-shadow: 0 0 24px rgba(232,0,61,0.35);
-      flex-shrink: 0;
-    }
-
-    .step-icon { font-size: 2.2rem; }
-
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; max-width: 960px; margin-inline: auto; }
+    .step { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; position: relative; }
+    .step-num { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--red)); display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', sans-serif; font-size: 1.5rem; color: #fff; box-shadow: 0 0 24px rgba(232,0,61,0.35); flex-shrink: 0; }
+    .step-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; }
     .step h3 { font-size: 1.2rem; }
     .step p { color: var(--muted); font-size: 0.92rem; max-width: 200px; }
-
-    /* Arrow between steps on wide screens */
-    .step:not(:last-child)::after {
-      content: '→';
-      position: absolute; right: -22px; top: 20px;
-      color: rgba(255,255,255,0.15); font-size: 1.5rem;
-    }
+    .step:not(:last-child)::after { content: '→'; position: absolute; right: -22px; top: 16px; color: rgba(255,255,255,0.15); font-size: 1.5rem; }
     @media (max-width: 700px) { .step::after { display: none; } }
 
     /* ── Device showcase ───────────────────────────────────────────────────── */
-    #devices {
-      background: var(--bg);
-      overflow: hidden;
-    }
+    #devices { background: var(--bg); overflow: hidden; }
+    .devices-wrap { display: flex; gap: 40px; align-items: flex-end; justify-content: center; flex-wrap: wrap; max-width: 1300px; margin-inline: auto; }
 
-    .devices-wrap {
-      display: flex; gap: 40px; align-items: flex-end;
-      justify-content: center; flex-wrap: wrap;
-      max-width: 1200px; margin-inline: auto;
-    }
+    /* Steam Deck */
+    .deck-scene { animation: deck-float 5s ease-in-out infinite; filter: drop-shadow(0 28px 48px rgba(0,0,0,0.85)) drop-shadow(0 0 60px rgba(80,100,255,0.12)); }
+    .deck-wrap { position: relative; width: 540px; aspect-ratio: 1024 / 414; }
+    .deck-screen { position: absolute; left: 23.68%; top: 8.94%; width: 52.79%; height: 82.09%; background: #080814; border-radius: 5px; overflow: hidden; z-index: 1; }
+    .deck-svg-frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
-    /* ── Steam Deck mockup ── */
-    .deck-wrap { position: relative; }
-
-    .deck {
-      width: 560px; height: 280px;
-      background: #111122;
-      border-radius: 40px 40px 40px 40px / 60px 60px 40px 40px;
-      border: 2px solid #333;
-      position: relative;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* Left grip */
-    .deck::before {
-      content: '';
-      position: absolute; left: -22px; top: 40px;
-      width: 36px; height: 160px;
-      background: #111122; border: 2px solid #333;
-      border-radius: 20px 0 0 24px;
-    }
-    /* Right grip */
-    .deck::after {
-      content: '';
-      position: absolute; right: -22px; top: 40px;
-      width: 36px; height: 160px;
-      background: #111122; border: 2px solid #333;
-      border-radius: 0 20px 24px 0;
-    }
-
-    .deck-screen {
-      width: 400px; height: 220px;
-      background: var(--bg); border-radius: 8px;
-      overflow: hidden; position: relative;
-      border: 1px solid #222;
-    }
-
-    /* Trackpads */
-    .deck-trackpad-l, .deck-trackpad-r {
-      position: absolute; bottom: 30px;
-      width: 42px; height: 42px; border-radius: 50%;
-      background: #1a1a2e; border: 1px solid #2a2a4a;
-    }
-    .deck-trackpad-l { left: 24px; }
-    .deck-trackpad-r { right: 24px; }
-
-    /* Face buttons (right side) */
-    .deck-buttons {
-      position: absolute; right: 28px; top: 50%;
-      transform: translateY(-50%);
-      width: 32px; height: 32px; position: absolute;
-    }
-
-    /* Left stick, right stick dots */
-    .deck-stick-l, .deck-stick-r {
-      position: absolute; top: 30px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: #1e1e3e; border: 1px solid #333;
-    }
-    .deck-stick-l { left: 70px; }
-    .deck-stick-r { right: 70px; }
-
-    /* Mini lobby UI inside Deck screen */
-    .lobby-mini {
-      width: 100%; height: 100%;
-      display: grid; grid-template-columns: 130px 1fr;
-      gap: 6px; padding: 8px;
-      background: var(--bg);
-      font-size: 0; /* hide any accidental text nodes */
-    }
-
-    .lobby-mini-left {
-      background: var(--card); border-radius: 6px;
-      display: flex; flex-direction: column;
-      align-items: center; padding: 8px 6px; gap: 6px;
-    }
-
-    .lobby-qr {
-      width: 72px; height: 72px;
-      background: white; border-radius: 4px;
-      display: grid; grid-template-columns: repeat(7,1fr); gap: 1px;
-      padding: 4px;
-    }
-    .lobby-qr-cell {
-      border-radius: 1px;
-      background: #000;
-    }
-    /* Randomly-looking QR pattern using nth-child */
+    /* Lobby mini content */
+    .lobby-mini { width: 100%; height: 100%; display: grid; grid-template-columns: 44% 56%; gap: 5px; padding: 6px; background: #080814; }
+    .lobby-left { background: #12122a; border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; gap: 6px; }
+    .lobby-scan-label { font-family: 'Inter', sans-serif; font-size: 6px; color: var(--muted); text-align: center; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
+    .lobby-qr { width: 60px; height: 60px; background: #fff; border-radius: 4px; display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; padding: 4px; flex-shrink: 0; }
+    .lobby-qr-cell { border-radius: 1px; background: #000; }
     .lobby-qr-cell:nth-child(odd) { opacity: 0; }
     .lobby-qr-cell:nth-child(3n) { opacity: 1; }
     .lobby-qr-cell:nth-child(5n+1) { opacity: 1; }
-    .lobby-qr-cell:nth-child(7n+2) { opacity: 0.2; }
+    .lobby-qr-cell:nth-child(7n+2) { opacity: 0.15; }
+    .lobby-right { background: #12122a; border-radius: 5px; padding: 7px 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+    .lobby-title { font-family: 'Fredoka One', sans-serif; font-size: 16px; background: linear-gradient(90deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; line-height: 1.1; }
+    .lobby-room { font-family: monospace; font-size: 8px; color: #666; letter-spacing: 1.5px; margin-bottom: 2px; }
+    .lobby-slot { display: flex; align-items: center; gap: 4px; background: #0a0a18; border-radius: 3px; padding: 3px 5px; }
+    .slot-num { font-family: 'Inter', sans-serif; font-size: 7px; color: var(--muted); width: 8px; flex-shrink: 0; }
+    .slot-name { font-family: 'Inter', sans-serif; font-size: 8px; color: #ccc; flex: 1; white-space: nowrap; overflow: hidden; display: flex; align-items: center; gap: 3px; }
+    .slot-name.empty { color: var(--muted); font-style: italic; }
+    .slot-crown { display: inline-flex; }
+    .slot-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
-    .lobby-qr-label {
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 8px; color: var(--muted); text-align: center;
-      -webkit-text-fill-color: var(--muted);
-    }
+    /* Phones */
+    .phones-group { display: flex; gap: 14px; align-items: flex-end; }
+    .device-label { text-align: center; margin-top: 16px; font-size: 0.78rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
 
-    .lobby-mini-right {
-      background: var(--card); border-radius: 6px;
-      padding: 8px;
-      display: flex; flex-direction: column; gap: 5px;
+    /* iOS phone */
+    .phone-ios {
+      width: 128px; height: 278px;
+      background: linear-gradient(175deg, #2c2c2c 0%, #1a1a1a 100%);
+      border-radius: 36px;
+      position: relative;
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.1), inset 0 0 0 3px rgba(0,0,0,0.5), 0 24px 60px rgba(0,0,0,0.75);
+      animation: phone-float 3.5s ease-in-out infinite;
     }
+    .phone-ios.p1 { box-shadow: 0 0 0 2px rgba(255,213,0,0.7), 0 0 30px rgba(255,213,0,0.25), inset 0 0 0 1.5px rgba(255,255,255,0.1), 0 24px 60px rgba(0,0,0,0.75); }
+    .phone-ios::after { content: ''; position: absolute; right: -4px; top: 88px; width: 4px; height: 44px; background: #383838; border-radius: 0 3px 3px 0; }
+    .phone-ios::before { content: ''; position: absolute; left: -4px; top: 68px; width: 4px; height: 20px; background: #383838; border-radius: 3px 0 0 3px; box-shadow: 0 30px 0 #383838, 0 58px 0 #383838; }
 
-    .lobby-mini-title {
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 16px; letter-spacing: 1px;
-      background: linear-gradient(90deg, var(--orange), var(--red));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 2px;
+    /* Android phone */
+    .phone-android {
+      width: 116px; height: 252px;
+      background: linear-gradient(175deg, #1c1c2e 0%, #0e0e1c 100%);
+      border-radius: 28px;
+      position: relative;
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.75);
+      animation: phone-float 3.5s ease-in-out infinite 0.8s;
+      transform: translateY(16px);
     }
+    .phone-android.p2 { box-shadow: 0 0 0 2px rgba(59,158,255,0.6), 0 0 28px rgba(59,158,255,0.2), inset 0 0 0 1.5px rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.75); }
+    .phone-android::after { content: ''; position: absolute; right: -4px; top: 82px; width: 4px; height: 38px; background: #2a2a3e; border-radius: 0 3px 3px 0; }
+    .phone-android::before { content: ''; position: absolute; left: -4px; top: 74px; width: 4px; height: 22px; background: #2a2a3e; border-radius: 3px 0 0 3px; box-shadow: 0 30px 0 #2a2a3e; }
 
-    .lobby-room {
-      font-family: monospace; font-size: 11px;
-      color: var(--text); letter-spacing: 2px;
-      text-shadow: 0 0 8px rgba(255,114,0,0.6);
-    }
+    /* Shared phone screen */
+    .phone-screen-area { position: absolute; inset: 2px; background: var(--bg); border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; }
+    .phone-android .phone-screen-area { border-radius: 26px; }
+    .phone-island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 50px; height: 13px; background: #060606; border-radius: 8px; z-index: 5; }
+    .phone-cam { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); width: 11px; height: 11px; background: #0a0a18; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 2px rgba(100,120,180,0.25); }
+    .phone-controller { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 30px 8px 10px; }
+    .phone-player-label { font-family: 'Inter', sans-serif; font-size: 7px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 3px; }
+    .phone-buzz { width: 68px; height: 68px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #ff3366 0%, #aa001f 70%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(232,0,61,0.5), 0 0 0 4px rgba(232,0,61,0.12), inset 0 -3px 8px rgba(0,0,0,0.3); animation: buzz-pulse 2.5s ease-in-out infinite; }
+    .phone-buzz span { font-family: 'Fredoka One', sans-serif; font-size: 12px; color: #fff; letter-spacing: 0.5px; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    .phone-answers { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+    .phone-ans { height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 7px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
+    .phone-ans.ylw { color: #111; }
 
-    .lobby-slot {
-      display: flex; align-items: center; gap: 5px;
-      background: var(--bg); border-radius: 4px;
-      padding: 3px 6px;
-    }
-    .lobby-slot-num { font-size: 9px; font-weight: 700; color: var(--muted); width: 10px; }
-    .lobby-slot-name { font-size: 9px; color: var(--text); flex: 1; }
-    .lobby-slot-dot { width: 6px; height: 6px; border-radius: 50%; }
+    /* Monitor */
+    .monitor-scene { display: flex; flex-direction: column; align-items: center; }
+    .monitor { width: 320px; border-radius: 10px 10px 3px 3px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.7); border: 2px solid #1e1e3a; }
+    .monitor-titlebar { height: 28px; background: #10102a; border-bottom: 1px solid #181832; display: flex; align-items: center; gap: 6px; padding: 0 12px; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .tl-dot.red { background: #ff5f57; }
+    .tl-dot.amber { background: #febc2e; }
+    .tl-dot.green { background: #28c840; }
+    .tl-title { flex: 1; text-align: center; font-family: monospace; font-size: 10px; color: #444; margin-right: 26px; }
+    .monitor-terminal { background: #060610; padding: 12px 16px 14px; font-family: 'SF Mono', 'Consolas', 'Monaco', monospace; font-size: 10px; line-height: 1.9; min-height: 188px; }
+    .term-ln { opacity: 0; animation: term-appear 0.2s ease forwards; color: #4CAF50; }
+    .term-ln:nth-child(1)  { animation-delay: 0.2s; }
+    .term-ln:nth-child(2)  { animation-delay: 0.5s; }
+    .term-ln:nth-child(3)  { animation-delay: 0.9s; }
+    .term-ln:nth-child(4)  { animation-delay: 1.2s; }
+    .term-ln:nth-child(5)  { animation-delay: 1.5s; }
+    .term-ln:nth-child(6)  { animation-delay: 1.8s; }
+    .term-ln:nth-child(7)  { animation-delay: 2.2s; }
+    .term-ln:nth-child(8)  { animation-delay: 2.7s; }
+    .term-ln:nth-child(9)  { animation-delay: 3.2s; }
+    .term-ln:nth-child(10) { animation-delay: 3.8s; }
+    .t-dim { color: #3a3a5a; }
+    .t-cmd { color: var(--orange); }
+    .t-ok  { color: #4CAF50; }
+    .t-acc { color: var(--orange); }
+    .t-blue { color: #3B9EFF; }
+    .t-white { color: #9090b0; }
+    .term-cursor { display: inline-block; width: 7px; height: 11px; background: #4CAF50; vertical-align: middle; animation: blink 1s step-end infinite; opacity: 0; animation-delay: 4.2s; }
+    .monitor-neck { width: 34px; height: 22px; background: #0e0e22; border-left: 2px solid #1e1e3a; border-right: 2px solid #1e1e3a; }
+    .monitor-base { width: 130px; height: 10px; background: #0e0e22; border-radius: 0 0 8px 8px; border: 2px solid #1e1e3a; border-top: none; margin: 0 auto; }
 
-    /* Deck label below */
-    .device-label {
-      text-align: center; margin-top: 16px;
-      font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em;
-      text-transform: uppercase;
+    /* ── Animations ────────────────────────────────────────────────────────── */
+    @keyframes deck-float  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes phone-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    .phone-android { animation-name: phone-float-offset; }
+    @keyframes phone-float-offset { 0%,100% { transform: translateY(16px); } 50% { transform: translateY(9px); } }
+    @keyframes buzz-pulse {
+      0%,100% { transform: scale(1); box-shadow: 0 4px 20px rgba(232,0,61,0.5), 0 0 0 4px rgba(232,0,61,0.12), inset 0 -3px 8px rgba(0,0,0,0.3); }
+      50%      { transform: scale(1.05); box-shadow: 0 6px 28px rgba(232,0,61,0.7), 0 0 0 10px rgba(232,0,61,0), inset 0 -3px 8px rgba(0,0,0,0.3); }
     }
-
-    /* ── Phone mockups ── */
-    .phones-wrap {
-      display: flex; gap: 24px; align-items: flex-end;
-    }
-
-    .phone {
-      width: 120px; height: 230px;
-      background: var(--card);
-      border-radius: 22px;
-      border: 2px solid var(--surf);
-      overflow: hidden; position: relative;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-      display: flex; flex-direction: column;
-      transition: transform 0.3s;
-    }
-    .phone:hover { transform: translateY(-6px); }
-    .phone.p1 { border-color: var(--p1); box-shadow: 0 16px 48px rgba(255,213,0,0.15); }
-    .phone.p2 { border-color: var(--p2); box-shadow: 0 16px 48px rgba(59,158,255,0.15); transform: translateY(12px); }
-
-    .phone-notch {
-      width: 40px; height: 8px; background: #0a0a18;
-      border-radius: 0 0 6px 6px; margin: 0 auto 4px;
-      flex-shrink: 0;
-    }
-
-    .phone-screen {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: space-around;
-      padding: 6px;
-      background: var(--bg);
-    }
-
-    .phone-player-info {
-      font-size: 7px; color: var(--muted); text-align: center;
-      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-    }
-
-    .phone-buzz {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ff3366, #aa0022);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(232,0,61,0.5), 0 0 0 4px rgba(232,0,61,0.15);
-    }
-    .phone-buzz-text {
-      font-family: 'Fredoka One', sans-serif; font-size: 11px; color: #fff; letter-spacing: 0.5px;
-    }
-
-    .phone-answers {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 4px; width: 100%;
-    }
-    .phone-ans {
-      height: 22px; border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 6px; font-weight: 800; letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    /* ── Monitor mockup ── */
-    .monitor-wrap { display: flex; flex-direction: column; align-items: center; }
-
-    .monitor {
-      width: 320px; height: 210px;
-      background: #0a0a18;
-      border: 3px solid #2a2a4a;
-      border-radius: 12px 12px 0 0;
-      overflow: hidden;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+    @keyframes blink       { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes term-appear { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .deck-scene, .phone-ios, .phone-android, .phone-buzz { animation: none; }
+      .term-ln { opacity: 1; animation: none; }
+      .term-cursor { opacity: 1; animation: none; }
     }
 
-    .monitor-bar {
-      height: 24px; background: #111128;
-      border-bottom: 1px solid #1e1e3e;
-      display: flex; align-items: center; gap: 6px;
-      padding: 0 10px;
-    }
-    .monitor-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-    .monitor-terminal {
-      padding: 10px 12px;
-      font-family: monospace; font-size: 9px;
-      line-height: 1.7; color: #4CAF50;
-    }
-    .monitor-terminal .dim { color: #444; }
-    .monitor-terminal .accent { color: var(--orange); }
-    .monitor-terminal .white { color: #aaa; }
-    .monitor-terminal .red { color: var(--red); }
-    .monitor-terminal .cursor {
-      display: inline-block; width: 6px; height: 10px;
-      background: #4CAF50; animation: blink 1s step-end infinite;
-      vertical-align: middle;
-    }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
-
-    .monitor-stand-neck {
-      width: 40px; height: 20px; background: #1a1a2e;
-      margin: 0 auto;
-      border-left: 3px solid #2a2a4a; border-right: 3px solid #2a2a4a;
-    }
-    .monitor-stand-base {
-      width: 120px; height: 12px; background: #1a1a2e;
-      border-radius: 0 0 8px 8px;
-      border: 3px solid #2a2a4a; border-top: none;
-      margin: 0 auto;
-    }
-
-    /* ── Features grid ─────────────────────────────────────────────────────── */
+    /* ── Features ──────────────────────────────────────────────────────────── */
     #features { background: var(--card); }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px; max-width: 1100px; margin-inline: auto;
-    }
-
-    .feature-card {
-      background: var(--surf); border-radius: var(--radius);
-      padding: 28px 24px;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: border-color 0.2s, transform 0.2s;
-    }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin-inline: auto; }
+    .feature-card { background: var(--surf); border-radius: var(--radius); padding: 28px 24px; border: 1px solid rgba(255,255,255,0.05); transition: border-color 0.2s, transform 0.2s; }
     .feature-card:hover { border-color: rgba(255,114,0,0.3); transform: translateY(-4px); }
-    .feature-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .feature-icon { display: flex; margin-bottom: 14px; }
     .feature-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
     .feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
 
     /* ── Setup ─────────────────────────────────────────────────────────────── */
     #setup { background: var(--bg); }
-
-    .setup-steps {
-      display: flex; flex-direction: column; gap: 24px;
-      max-width: 680px; margin-inline: auto;
-    }
-
-    .setup-step {
-      display: grid; grid-template-columns: 48px 1fr;
-      gap: 20px; align-items: start;
-    }
-
-    .setup-num {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange), var(--red));
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Fredoka One', sans-serif; font-size: 1.4rem; color: #fff;
-      flex-shrink: 0;
-      box-shadow: 0 0 20px rgba(232,0,61,0.3);
-    }
-
+    .setup-steps { display: flex; flex-direction: column; gap: 24px; max-width: 680px; margin-inline: auto; }
+    .setup-step { display: grid; grid-template-columns: 48px 1fr; gap: 20px; align-items: start; }
+    .setup-num { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--red)); display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; box-shadow: 0 0 20px rgba(232,0,61,0.3); }
     .setup-content h3 { font-size: 1.15rem; margin-bottom: 8px; padding-top: 10px; }
-
-    pre {
-      background: #080812; border: 1px solid #1e1e3e;
-      border-radius: 10px; padding: 14px 18px;
-      font-size: 0.82rem; overflow-x: auto;
-      color: #4CAF50; line-height: 1.7;
-    }
+    pre { background: #080812; border: 1px solid #1e1e3e; border-radius: 10px; padding: 14px 18px; font-size: 0.82rem; overflow-x: auto; color: #4CAF50; line-height: 1.7; }
     pre .comment { color: #444; }
     pre .cmd { color: var(--orange); }
-
     .setup-note { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
 
     /* ── Footer ────────────────────────────────────────────────────────────── */
-    footer {
-      background: #080812; border-top: 1px solid #1a1a2e;
-      padding: 48px 40px;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 20px; text-align: center;
-    }
-
-    .footer-logo {
-      font-family: 'Fredoka One', sans-serif; font-size: 2rem;
-      background: linear-gradient(90deg, var(--orange), var(--red));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-
+    footer { background: #080812; border-top: 1px solid #1a1a2e; padding: 48px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+    .footer-logo { font-family: 'Fredoka One', sans-serif; font-size: 2rem; background: linear-gradient(90deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .footer-dots { display: flex; gap: 10px; }
     .footer-dot { width: 14px; height: 14px; border-radius: 50%; }
-
     .footer-links { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
-    .footer-links a {
-      font-size: 0.88rem; color: var(--muted);
-      transition: color 0.15s;
-    }
+    .footer-links a { font-size: 0.88rem; color: var(--muted); transition: color 0.15s; }
     .footer-links a:hover { color: var(--text); }
-
     .footer-copy { font-size: 0.8rem; color: #333; }
 
     /* ── Responsive ────────────────────────────────────────────────────────── */
-    @media (max-width: 900px) {
-      .deck { width: 420px; height: 220px; }
-      .deck-screen { width: 300px; height: 172px; }
-      .deck-stick-l { left: 50px; }
-      .deck-stick-r { right: 50px; }
-      .lobby-mini { grid-template-columns: 100px 1fr; }
-      .lobby-qr { width: 56px; height: 56px; }
+    @media (max-width: 960px) {
+      .deck-wrap { width: 420px; }
     }
-
-    @media (max-width: 640px) {
+    @media (max-width: 700px) {
       nav { padding: 14px 20px; }
       .nav-links { gap: 16px; }
-      .deck { display: none; }
+      .deck-scene { display: none; }
       .devices-wrap { gap: 24px; }
-      .phones-wrap { gap: 16px; }
-      .phone { width: 100px; height: 200px; }
-      .phone-buzz { width: 52px; height: 52px; }
-      .monitor { width: 260px; height: 170px; }
+      .phones-group { gap: 12px; }
+      .monitor { width: 280px; }
+    }
+    @media (max-width: 480px) {
+      .phone-ios { width: 110px; height: 240px; }
+      .phone-android { width: 100px; height: 218px; }
+      .phone-buzz { width: 56px; height: 56px; }
     }
   </style>
 </head>
@@ -584,56 +267,50 @@
   </div>
 </nav>
 
-<!-- ── Hero ── -->
+<!-- Hero -->
 <section class="hero">
   <div class="stars" aria-hidden="true"></div>
-  <div class="hero-badge">🎮 For Steam Deck + PCSX2</div>
+  <div class="hero-badge"><i data-lucide="gamepad-2"></i> For Steam Deck + PCSX2</div>
   <h1 class="fredoka">BUZZD</h1>
-  <p class="hero-sub">
-    Turn any phone into a <strong>Buzz! controller</strong>.<br>
-    No dongles, no apps — scan a QR code and play.
-  </p>
+  <p class="hero-sub">Turn any phone into a <strong>Buzz! controller</strong>.<br>No dongles, no apps — scan a QR code and play.</p>
   <div class="hero-ctas">
     <a href="https://github.com/jun1perjack/buzzd" target="_blank" rel="noopener" class="btn-primary">Get Started on GitHub</a>
     <a href="#how" class="btn-secondary">See how it works</a>
   </div>
   <div class="hero-scroll" aria-hidden="true">
     <span>scroll</span>
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 </section>
 
-<!-- ── How it works ── -->
+<!-- How it works -->
 <section id="how">
   <div class="section-label center">Simple by design</div>
   <h2 class="section-title center reveal">How it works</h2>
   <p class="section-sub center reveal">Three steps from off to playing. No configuration nightmare.</p>
-
   <div class="steps">
     <div class="step reveal">
       <div class="step-num">1</div>
-      <div class="step-icon">🚀</div>
+      <div class="step-icon"><i data-lucide="rocket"></i></div>
       <h3>Launch from Steam</h3>
       <p>Buzzd appears as a game. Launch it — the server starts and a fullscreen lobby with QR code appears on your TV.</p>
     </div>
     <div class="step reveal">
       <div class="step-num">2</div>
-      <div class="step-icon">📱</div>
-      <h3>Players scan & join</h3>
+      <div class="step-icon"><i data-lucide="smartphone"></i></div>
+      <h3>Players scan &amp; join</h3>
       <p>Anyone with a phone scans the QR, enters a name, and gets a controller. Player 1 picks the game.</p>
     </div>
     <div class="step reveal">
       <div class="step-num">3</div>
-      <div class="step-icon">🎉</div>
+      <div class="step-icon"><i data-lucide="zap"></i></div>
       <h3>Play!</h3>
       <p>PCSX2 launches with the selected game. Every phone shows the BUZZ button and four colour answers.</p>
     </div>
   </div>
 </section>
 
-<!-- ── Device showcase ── -->
+<!-- Device showcase -->
 <section id="devices">
   <div class="section-label center">Works everywhere</div>
   <h2 class="section-title center reveal">Your living room, connected</h2>
@@ -642,20 +319,15 @@
   <div class="devices-wrap">
 
     <!-- Steam Deck -->
-    <div class="deck-wrap reveal">
-      <div class="deck" aria-label="Steam Deck showing BUZZD lobby">
-        <div class="deck-stick-l" aria-hidden="true"></div>
-        <div class="deck-stick-r" aria-hidden="true"></div>
-        <div class="deck-trackpad-l" aria-hidden="true"></div>
-        <div class="deck-trackpad-r" aria-hidden="true"></div>
+    <div class="deck-scene reveal">
+      <div class="deck-wrap">
 
+        <!-- Screen content (sits behind SVG overlay) -->
         <div class="deck-screen">
-          <div class="lobby-mini" aria-label="Buzzd host lobby UI">
-            <!-- Left: QR -->
-            <div class="lobby-mini-left">
-              <span class="lobby-qr-label fredoka">SCAN TO JOIN</span>
+          <div class="lobby-mini">
+            <div class="lobby-left">
+              <span class="lobby-scan-label">Scan to join</span>
               <div class="lobby-qr" aria-hidden="true">
-                <!-- 49 cells for a 7×7 fake QR -->
                 <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
                 <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
                 <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
@@ -665,154 +337,170 @@
                 <div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div><div class="lobby-qr-cell"></div>
               </div>
             </div>
-            <!-- Right: players -->
-            <div class="lobby-mini-right">
-              <div class="lobby-mini-title">BUZZD</div>
+            <div class="lobby-right">
+              <div class="lobby-title">BUZZD</div>
               <div class="lobby-room">ROOM: F962DC</div>
               <div class="lobby-slot">
-                <span class="lobby-slot-num">1</span>
-                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">👑 Jack</span>
-                <span class="lobby-slot-dot" style="background:var(--p1)"></span>
+                <span class="slot-num">1</span>
+                <span class="slot-name">
+                  <span class="slot-crown"><svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="#FFD500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5z"/><path d="M5 20h14"/></svg></span>
+                  Jack
+                </span>
+                <span class="slot-dot" style="background:var(--p1)"></span>
               </div>
               <div class="lobby-slot">
-                <span class="lobby-slot-num">2</span>
-                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">Sarah</span>
-                <span class="lobby-slot-dot" style="background:var(--p2)"></span>
+                <span class="slot-num">2</span>
+                <span class="slot-name">Sarah</span>
+                <span class="slot-dot" style="background:var(--p2)"></span>
               </div>
               <div class="lobby-slot">
-                <span class="lobby-slot-num">3</span>
-                <span class="lobby-slot-name" style="font-size:9px;color:#ddd;">Mike</span>
-                <span class="lobby-slot-dot" style="background:var(--p3)"></span>
+                <span class="slot-num">3</span>
+                <span class="slot-name">Mike</span>
+                <span class="slot-dot" style="background:var(--p3)"></span>
               </div>
               <div class="lobby-slot">
-                <span class="lobby-slot-num">4</span>
-                <span class="lobby-slot-name" style="font-size:9px;color:var(--muted);font-style:italic;">Empty</span>
-                <span class="lobby-slot-dot" style="background:#333"></span>
+                <span class="slot-num">4</span>
+                <span class="slot-name empty">Empty</span>
+                <span class="slot-dot" style="background:#2a2a4a"></span>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Official Valve Steam Deck SVG overlay -->
+        <svg class="deck-svg-frame" viewBox="0 0 1024 414" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Body fill with screen cutout (evenodd punches a hole for the screen) -->
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M4.68799 138.986C4.07808 84.8566 3.77312 57.7917 17.3951 38.7736C21.7923 32.6345 27.135 27.2312 33.2243 22.765C52.0876 8.92969 79.1543 8.92969 133.288 8.92969H891.302C945.435 8.92969 972.502 8.92969 991.365 22.765C997.454 27.2312 1002.8 32.6345 1007.19 38.7736C1020.82 57.7917 1020.51 84.8566 1019.9 138.986L1018.87 230.404C1018.05 303.325 1017.64 339.786 998.847 365.286C992.776 373.525 985.454 380.765 977.146 386.744C951.436 405.247 914.973 405.247 842.047 405.247H182.542C109.616 405.247 73.1532 405.247 47.443 386.744C39.1358 380.765 31.8139 373.525 25.7421 365.286C6.95052 339.786 6.53969 303.325 5.71804 230.404L4.68799 138.986Z M242.5 37H783.098V376.873H242.5V37Z" fill="#1A1A2C"/>
+          <!-- Valve detail paths (controls, screen outline, trackpads, buttons, etc.) -->
+          <path d="M34.8352 20.8957C34.8352 20.8957 41.5423 9.53977 66.2582 6.06818C83.5116 3.64578 158.188 4.98813 158.188 4.98813C158.188 4.98813 166.899 6.2379 166.899 10.6198M987.403 20.8957C987.403 20.8957 980.696 9.53977 955.98 6.06818C938.726 3.64578 864.05 4.98813 864.05 4.98813C864.05 4.98813 855.339 6.2379 855.339 10.6198M3.34961 149.594H49.1214C58.9864 149.594 66.9836 157.592 66.9836 167.457V236.361C66.9836 251.093 71.5375 265.465 80.0217 277.508L159.609 390.485C162.537 394.643 164.109 399.604 164.109 404.689M1020.38 149.594H974.606C964.741 149.594 956.743 157.592 956.743 167.457V236.361C956.743 251.093 952.19 265.465 943.705 277.508L864.118 390.485C861.19 394.643 859.618 399.604 859.618 404.689M192.587 256.887H112.642C105.025 256.887 98.8573 250.715 98.8573 243.093V163.108C98.8573 155.485 105.025 149.314 112.642 149.314H192.571C200.188 149.314 206.356 155.485 206.356 163.108V243.093C206.371 250.715 200.188 256.887 192.587 256.887ZM195.562 299.61H163.415C157.448 299.61 152.606 294.766 152.606 288.795C152.606 282.823 157.448 277.979 163.415 277.979H195.562C201.529 277.979 206.371 282.823 206.371 288.795C206.371 294.766 201.529 299.61 195.562 299.61ZM129.975 40.1229H113.665C109.98 40.1229 107.005 37.1296 107.005 33.4575C107.005 29.7699 109.996 26.792 113.665 26.792H129.975C133.66 26.792 136.636 29.7853 136.636 33.4575C136.652 37.1296 133.66 40.1229 129.975 40.1229ZM197.836 90.0094C197.836 108.893 182.539 124.201 163.669 124.201C144.799 124.201 129.501 108.893 129.501 90.0094C129.501 71.126 144.799 55.818 163.669 55.818C182.539 55.818 197.836 71.126 197.836 90.0094ZM186.822 90.635C186.822 103.698 176.24 114.288 163.185 114.288C150.131 114.288 139.549 103.698 139.549 90.635C139.549 77.5718 150.131 66.9819 163.185 66.9819C176.24 66.9819 186.822 77.5718 186.822 90.635ZM206.711 345.281H198.879C197.691 345.281 196.72 344.309 196.72 343.121C196.72 341.933 197.691 340.961 198.879 340.961H206.711C207.898 340.961 208.87 341.933 208.87 343.121C208.885 344.325 207.914 345.281 206.711 345.281ZM191.8 345.281H183.968C182.78 345.281 181.809 344.309 181.809 343.121C181.809 341.933 182.78 340.961 183.968 340.961H191.8C192.987 340.961 193.959 341.933 193.959 343.121C193.959 344.325 193.003 345.281 191.8 345.281ZM176.891 345.281H169.059C167.872 345.281 166.9 344.309 166.9 343.121C166.9 341.933 167.872 340.961 169.059 340.961H176.891C178.079 340.961 179.05 341.933 179.05 343.121C179.05 344.325 178.079 345.281 176.891 345.281ZM206.71 324.004H198.877C197.69 324.004 196.719 323.032 196.719 321.844C196.719 320.656 197.69 319.684 198.877 319.684H206.71C207.897 319.684 208.869 320.656 208.869 321.844C208.884 323.032 207.913 324.004 206.71 324.004ZM191.847 324.004H184.014C182.827 324.004 181.856 323.032 181.856 321.844C181.856 320.656 182.827 319.684 184.014 319.684H191.847C193.034 319.684 194.006 320.656 194.006 321.844C194.006 323.032 193.034 324.004 191.847 324.004ZM176.968 324.004H169.135C167.948 324.004 166.977 323.032 166.977 321.844C166.977 320.656 167.948 319.684 169.135 319.684H176.968C178.155 319.684 179.126 320.656 179.126 321.844C179.126 323.032 178.17 324.004 176.968 324.004ZM162.105 324.004H154.272C153.085 324.004 152.114 323.032 152.114 321.844C152.114 320.656 153.085 319.684 154.272 319.684H162.105C163.292 319.684 164.263 320.656 164.263 321.844C164.263 323.032 163.292 324.004 162.105 324.004ZM206.711 334.635H191.554C190.367 334.635 189.396 333.663 189.396 332.475C189.396 331.287 190.367 330.315 191.554 330.315H206.711C207.898 330.315 208.869 331.287 208.869 332.475C208.885 333.678 207.913 334.635 206.711 334.635ZM184.616 334.635H176.783C175.596 334.635 174.624 333.663 174.624 332.475C174.624 331.287 175.596 330.315 176.783 330.315H184.616C185.803 330.315 186.774 331.287 186.774 332.475C186.774 333.678 185.803 334.635 184.616 334.635ZM169.397 334.635H161.565C160.377 334.635 159.406 333.663 159.406 332.475C159.406 331.287 160.377 330.315 161.565 330.315H169.397C170.584 330.315 171.556 331.287 171.556 332.475C171.556 333.678 170.584 334.635 169.397 334.635ZM831.856 256.887H911.786C919.403 256.887 925.57 250.715 925.57 243.093V163.108C925.57 155.485 919.403 149.314 911.786 149.314H831.856C824.239 149.314 818.072 155.485 818.072 163.108V243.093C818.072 250.715 824.239 256.887 831.856 256.887ZM828.88 299.61H861.028C866.995 299.61 871.836 294.766 871.836 288.795C871.836 282.823 866.995 277.979 861.028 277.979H828.88C822.913 277.979 818.072 282.823 818.072 288.795C818.072 294.766 822.913 299.61 828.88 299.61ZM894.451 40.1229H910.761C914.446 40.1229 917.422 37.1296 917.422 33.4575C917.422 29.7699 914.431 26.792 910.761 26.792H894.451C890.766 26.792 887.79 29.7853 887.79 33.4575C887.79 37.1296 890.766 40.1229 894.451 40.1229ZM893.943 90.559C893.943 109.442 878.646 124.75 859.776 124.75C840.906 124.75 825.608 109.442 825.608 90.559C825.608 71.6756 840.906 56.3677 859.776 56.3677C878.646 56.3677 893.943 71.6756 893.943 90.559ZM883.615 90.5588C883.615 103.622 873.032 114.212 859.978 114.212C846.924 114.212 836.342 103.622 836.342 90.5588C836.342 77.4956 846.924 66.9057 859.978 66.9057C873.032 66.9057 883.615 77.4956 883.615 90.5588ZM817.717 345.281H825.55C826.737 345.281 827.709 344.309 827.709 343.121C827.709 341.933 826.737 340.961 825.55 340.961H817.717C816.53 340.961 815.559 341.933 815.559 343.121C815.559 344.325 816.515 345.281 817.717 345.281ZM832.626 345.281H840.459C841.646 345.281 842.617 344.309 842.617 343.121C842.617 341.933 841.646 340.961 840.459 340.961H832.626C831.439 340.961 830.467 341.933 830.467 343.121C830.467 344.325 831.439 345.281 832.626 345.281ZM847.551 345.281H855.384C856.571 345.281 857.543 344.309 857.543 343.121C857.543 341.933 856.571 340.961 855.384 340.961H847.551C846.364 340.961 845.393 341.933 845.393 343.121C845.377 344.325 846.349 345.281 847.551 345.281ZM817.717 324.004H825.55C826.737 324.004 827.709 323.032 827.709 321.844C827.709 320.656 826.737 319.684 825.55 319.684H817.717C816.53 319.684 815.559 320.656 815.559 321.844C815.559 323.032 816.515 324.004 817.717 324.004ZM832.58 324.004H840.413C841.6 324.004 842.572 323.032 842.572 321.844C842.572 320.656 841.6 319.684 840.413 319.684H832.58C831.393 319.684 830.422 320.656 830.422 321.844C830.422 323.032 831.393 324.004 832.58 324.004ZM847.46 324.004H855.292C856.48 324.004 857.451 323.032 857.451 321.844C857.451 320.656 856.48 319.684 855.292 319.684H847.46C846.272 319.684 845.301 320.656 845.301 321.844C845.301 323.032 846.272 324.004 847.46 324.004ZM862.338 324.004H870.17C871.358 324.004 872.329 323.032 872.329 321.844C872.329 320.656 871.358 319.684 870.17 319.684H862.338C861.151 319.684 860.179 320.656 860.179 321.844C860.179 323.032 861.135 324.004 862.338 324.004ZM817.717 334.635H832.874C834.061 334.635 835.032 333.663 835.032 332.475C835.032 331.287 834.061 330.315 832.874 330.315H817.717C816.53 330.315 815.559 331.287 815.559 332.475C815.559 333.678 816.515 334.635 817.717 334.635ZM839.827 334.635H847.66C848.847 334.635 849.818 333.663 849.818 332.475C849.818 331.287 848.847 330.315 847.66 330.315H839.827C838.64 330.315 837.669 331.287 837.669 332.475C837.653 333.678 838.624 334.635 839.827 334.635ZM855.045 334.635H862.878C864.065 334.635 865.037 333.663 865.037 332.475C865.037 331.287 864.065 330.315 862.878 330.315H855.045C853.858 330.315 852.887 331.287 852.887 332.475C852.887 333.678 853.843 334.635 855.045 334.635ZM974.606 44.096C974.606 52.4196 967.858 59.1672 959.534 59.1672C951.211 59.1672 944.463 52.4196 944.463 44.096C944.463 35.7724 951.211 29.0248 959.534 29.0248C967.858 29.0248 974.606 35.7724 974.606 44.096ZM974.606 103.871C974.606 112.195 967.858 118.942 959.534 118.942C951.211 118.942 944.463 112.195 944.463 103.871C944.463 95.5476 951.211 88.8 959.534 88.8C967.858 88.8 974.606 95.5476 974.606 103.871ZM1004.19 74.2384C1004.19 82.562 997.438 89.3096 989.114 89.3096C980.791 89.3096 974.043 82.562 974.043 74.2384C974.043 65.9148 980.791 59.1672 989.114 59.1672C997.438 59.1672 1004.19 65.9148 1004.19 74.2384ZM944.463 74.2384C944.463 82.562 937.716 89.3096 929.392 89.3096C921.068 89.3096 914.321 82.562 914.321 74.2384C914.321 65.9148 921.068 59.1672 929.392 59.1672C937.716 59.1672 944.463 65.9148 944.463 74.2384ZM801.936 389.956H221.335C219.315 389.956 217.696 388.32 217.696 386.314V31.0384C217.696 29.0172 219.33 27.3971 221.335 27.3971H801.921C803.94 27.3971 805.559 29.0326 805.559 31.0384V386.314C805.575 388.32 803.94 389.956 801.936 389.956ZM242.5 37H783.098V376.873H242.5V37ZM30.7604 84.1312C28.8943 77.2888 28.8943 70.0716 30.7604 63.2293C31.0549 62.1492 32.0359 61.4 33.1554 61.4H50.2378C52.7041 61.4 54.7034 59.4007 54.7034 56.9344V39.852C54.7034 38.7325 55.4526 37.7515 56.5327 37.457C63.375 35.5909 70.5922 35.5909 77.4346 37.457C78.5146 37.7515 79.2639 38.7325 79.2639 39.852V56.9344C79.2639 59.4007 81.2632 61.4 83.7294 61.4H100.812C101.931 61.4 102.912 62.1492 103.207 63.2293C105.073 70.0716 105.073 77.2888 103.207 84.1312C102.912 85.2112 101.931 85.9605 100.812 85.9605H83.7294C81.2632 85.9605 79.2639 87.9598 79.2639 90.426V107.508C79.2639 108.628 78.5146 109.609 77.4346 109.903C70.5922 111.77 63.375 111.77 56.5327 109.903C55.4526 109.609 54.7034 108.628 54.7034 107.508V90.426C54.7034 87.9598 52.7041 85.9605 50.2378 85.9605H33.1554C32.0359 85.9605 31.0549 85.2112 30.7604 84.1312Z" stroke="rgba(195,210,255,0.42)" stroke-width="1.1556" stroke-miterlimit="10"/>
+          <!-- Outer body outline -->
+          <path d="M4.68799 138.986C4.07808 84.8566 3.77312 57.7917 17.3951 38.7736C21.7923 32.6345 27.135 27.2312 33.2243 22.765C52.0876 8.92969 79.1543 8.92969 133.288 8.92969H891.302C945.435 8.92969 972.502 8.92969 991.365 22.765C997.454 27.2312 1002.8 32.6345 1007.19 38.7736C1020.82 57.7917 1020.51 84.8566 1019.9 138.986L1018.87 230.404C1018.05 303.325 1017.64 339.786 998.847 365.286C992.776 373.525 985.454 380.765 977.146 386.744C951.436 405.247 914.973 405.247 842.047 405.247H182.542C109.616 405.247 73.1532 405.247 47.443 386.744C39.1358 380.765 31.8139 373.525 25.7421 365.286C6.95052 339.786 6.53969 303.325 5.71804 230.404L4.68799 138.986Z" stroke="rgba(195,210,255,0.58)" stroke-width="3.46681"/>
+          <!-- Secondary detail overlay -->
+          <path opacity="0.3" d="M1020.38 99.3572L1016.93 80.5049C1010.52 45.5118 980.024 20.0938 944.449 20.0938H79.2781C43.7032 20.0938 13.2086 45.5118 6.80144 80.5049L3.34961 99.3572M210.552 90.7616C210.552 116.843 189.409 137.985 163.328 137.985C137.247 137.985 116.105 116.843 116.105 90.7616C116.105 64.6806 137.247 43.5379 163.328 43.5379C189.409 43.5379 210.552 64.6806 210.552 90.7616ZM907.177 90.4787C907.177 116.56 886.034 137.702 859.953 137.702C833.872 137.702 812.73 116.56 812.73 90.4787C812.73 64.3977 833.872 43.2549 859.953 43.2549C886.034 43.2549 907.177 64.3977 907.177 90.4787Z" stroke="rgba(195,210,255,0.42)" stroke-width="1.1556" stroke-miterlimit="10"/>
+          <!-- Two sensor dots -->
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M310.358 29.0261C311.591 29.0261 312.591 28.0264 312.591 26.7933C312.591 25.5602 311.591 24.5605 310.358 24.5605C309.125 24.5605 308.125 25.5602 308.125 26.7933C308.125 28.0264 309.125 29.0261 310.358 29.0261ZM716.721 29.0261C717.954 29.0261 718.954 28.0264 718.954 26.7933C718.954 25.5602 717.954 24.5605 716.721 24.5605C715.488 24.5605 714.488 25.5602 714.488 26.7933C714.488 28.0264 715.488 29.0261 716.721 29.0261Z" fill="rgba(195,210,255,0.42)"/>
+        </svg>
       </div>
       <div class="device-label">Steam Deck / Linux</div>
     </div>
 
     <!-- Phones -->
-    <div class="phones-wrap reveal">
-      <!-- Phone 1 -->
-      <div class="phone p1" aria-label="Player 1 phone controller">
-        <div class="phone-notch" aria-hidden="true"></div>
-        <div class="phone-screen">
-          <div class="phone-player-info">👑 Player 1 · Jack</div>
-          <div class="phone-buzz">
-            <span class="phone-buzz-text">BUZZ!</span>
-          </div>
-          <div class="phone-answers">
-            <div class="phone-ans" style="background:#3B9EFF;color:#fff;">Blue</div>
-            <div class="phone-ans" style="background:#FF7200;color:#fff;">Orng</div>
-            <div class="phone-ans" style="background:#4CAF50;color:#fff;">Grn</div>
-            <div class="phone-ans" style="background:#FFD500;color:#111;">Ylw</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Phone 2 -->
-      <div class="phone p2" aria-label="Player 2 phone controller">
-        <div class="phone-notch" aria-hidden="true"></div>
-        <div class="phone-screen">
-          <div class="phone-player-info">Player 2 · Sarah</div>
-          <div class="phone-buzz">
-            <span class="phone-buzz-text">BUZZ!</span>
-          </div>
-          <div class="phone-answers">
-            <div class="phone-ans" style="background:#3B9EFF;color:#fff;">Blue</div>
-            <div class="phone-ans" style="background:#FF7200;color:#fff;">Orng</div>
-            <div class="phone-ans" style="background:#4CAF50;color:#fff;">Grn</div>
-            <div class="phone-ans" style="background:#FFD500;color:#111;">Ylw</div>
+    <div class="phones-group reveal">
+      <!-- iPhone — Player 1 -->
+      <div class="phone-ios p1" aria-label="Player 1 iPhone controller">
+        <div class="phone-screen-area">
+          <div class="phone-island" aria-hidden="true"></div>
+          <div class="phone-controller">
+            <div class="phone-player-label">
+              <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#FFD500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5z"/><path d="M5 20h14"/></svg>
+              P1 · Jack
+            </div>
+            <div class="phone-buzz"><span>BUZZ!</span></div>
+            <div class="phone-answers">
+              <div class="phone-ans" style="background:#3B9EFF">Blue</div>
+              <div class="phone-ans" style="background:#FF7200">Org</div>
+              <div class="phone-ans" style="background:#4CAF50">Grn</div>
+              <div class="phone-ans ylw" style="background:#FFD500">Ylw</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="device-label" style="margin-top:16px;">Any phone browser</div>
+      <!-- Android — Player 2 -->
+      <div class="phone-android p2" aria-label="Player 2 Android controller">
+        <div class="phone-screen-area">
+          <div class="phone-cam" aria-hidden="true"></div>
+          <div class="phone-controller">
+            <div class="phone-player-label">P2 · Sarah</div>
+            <div class="phone-buzz"><span>BUZZ!</span></div>
+            <div class="phone-answers">
+              <div class="phone-ans" style="background:#3B9EFF">Blue</div>
+              <div class="phone-ans" style="background:#FF7200">Org</div>
+              <div class="phone-ans" style="background:#4CAF50">Grn</div>
+              <div class="phone-ans ylw" style="background:#FFD500">Ylw</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="device-label">Any phone browser</div>
     </div>
 
     <!-- Monitor -->
-    <div class="monitor-wrap reveal">
+    <div class="monitor-scene reveal">
       <div class="monitor" aria-label="Linux terminal showing Buzzd server">
-        <div class="monitor-bar" aria-hidden="true">
-          <div class="monitor-dot" style="background:#ff5f57"></div>
-          <div class="monitor-dot" style="background:#febc2e"></div>
-          <div class="monitor-dot" style="background:#28c840"></div>
+        <div class="monitor-titlebar" aria-hidden="true">
+          <div class="tl-dot red"></div>
+          <div class="tl-dot amber"></div>
+          <div class="tl-dot green"></div>
+          <span class="tl-title">Terminal — buzzd</span>
         </div>
-        <div class="monitor-terminal" aria-label="Server output">
-          <span class="dim">$ </span><span class="accent">./launch.sh</span><br>
-          <span class="dim">Starting server...</span><br>
-          <span class="white">╔══════════════════╗</span><br>
-          <span class="white">║  BUZZD CONTROLLER║</span><br>
-          <span class="white">╚══════════════════╝</span><br>
-          <span class="dim">Room code : </span><span class="accent">F962DC</span><br>
-          <span class="dim">Ngrok     : </span><span style="color:#3B9EFF">wss://…</span><br>
-          <br>
-          <span class="dim">Waiting for players…</span><br>
-          <span class="white">[player] "Jack" → slot 1</span><br>
-          <span class="white">[player] "Sarah" → slot 2</span><br>
-          <span class="accent">[server] Game started!</span>
-          <span class="cursor" aria-hidden="true"></span>
+        <div class="monitor-terminal">
+          <div class="term-ln"><span class="t-dim">$ </span><span class="t-cmd">./launch.sh</span></div>
+          <div class="term-ln t-dim">Starting server…</div>
+          <div class="term-ln t-ok">✓ Ready on :3000</div>
+          <div class="term-ln"><span class="t-dim">  Room  </span><span class="t-acc">F962DC</span></div>
+          <div class="term-ln"><span class="t-dim">  Ngrok </span><span class="t-blue">wss://…ngrok.io</span></div>
+          <div class="term-ln t-dim">&nbsp;</div>
+          <div class="term-ln t-dim">Waiting for players…</div>
+          <div class="term-ln t-white">[+] "Jack" → slot 1</div>
+          <div class="term-ln t-white">[+] "Sarah" → slot 2</div>
+          <div class="term-ln t-ok">[✓] Game started!</div>
+          <span class="term-cursor" aria-hidden="true"></span>
         </div>
       </div>
-      <div class="monitor-stand-neck" aria-hidden="true"></div>
-      <div class="monitor-stand-base" aria-hidden="true"></div>
+      <div class="monitor-neck" aria-hidden="true"></div>
+      <div class="monitor-base" aria-hidden="true"></div>
       <div class="device-label">Linux desktop</div>
     </div>
 
   </div>
 </section>
 
-<!-- ── Features ── -->
+<!-- Features -->
 <section id="features">
   <div class="section-label center">Everything you need</div>
   <h2 class="section-title center reveal">Built for the couch</h2>
   <p class="section-sub center reveal">No compromises, no faff. Just the bits that actually matter.</p>
-
   <div class="features-grid">
     <div class="feature-card reveal">
-      <span class="feature-icon">📱</span>
+      <div class="feature-icon"><i data-lucide="smartphone"></i></div>
       <h3>Any phone, any browser</h3>
       <p>No app download, no pairing. Players scan a QR code and they're in. Works on iOS, Android, anything with a browser.</p>
     </div>
     <div class="feature-card reveal">
-      <span class="feature-icon">👥</span>
+      <div class="feature-icon"><i data-lucide="users"></i></div>
       <h3>Up to 4 players</h3>
       <p>Each player gets their own slot with a BUZZ button and four colour answer buttons. Exactly like the real thing.</p>
     </div>
     <div class="feature-card reveal">
-      <span class="feature-icon">🎮</span>
+      <div class="feature-icon"><i data-lucide="images"></i></div>
       <h3>Game picker with cover art</h3>
       <p>The host browses your ROM library from their phone. SteamGridDB cover art loads automatically in the background.</p>
     </div>
     <div class="feature-card reveal">
-      <span class="feature-icon">🚀</span>
+      <div class="feature-icon"><i data-lucide="rocket"></i></div>
       <h3>Launches from Steam</h3>
       <p>Appears as a game in your Steam library. Launch it, scan, and play — the lobby opens fullscreen on your TV.</p>
     </div>
     <div class="feature-card reveal">
-      <span class="feature-icon">🌐</span>
+      <div class="feature-icon"><i data-lucide="globe"></i></div>
       <h3>Play over the internet</h3>
       <p>ngrok tunnelling means players don't need to be on the same Wi-Fi. Friends can join from anywhere.</p>
     </div>
     <div class="feature-card reveal">
-      <span class="feature-icon">🔌</span>
+      <div class="feature-icon"><i data-lucide="cpu"></i></div>
       <h3>Virtual controller</h3>
       <p>Uses Linux uinput to create a virtual gamepad. No PCSX2 plugins needed — it just looks like real hardware.</p>
     </div>
   </div>
 </section>
 
-<!-- ── Setup ── -->
+<!-- Setup -->
 <section id="setup">
   <div class="section-label center">Get going</div>
   <h2 class="section-title center reveal">Three commands</h2>
   <p class="section-sub center reveal">The setup script handles everything else — PCSX2 detection, ROM folder, cover art keys.</p>
-
   <div class="setup-steps">
     <div class="setup-step reveal">
       <div class="setup-num">1</div>
@@ -823,7 +511,6 @@
         <p class="setup-note">Detects your PCSX2 path and ROM folder automatically. Walks you through the rest.</p>
       </div>
     </div>
-
     <div class="setup-step reveal">
       <div class="setup-num">2</div>
       <div class="setup-content">
@@ -834,7 +521,6 @@
         <p class="setup-note">steam-art/ has a capsule, hero banner, and icon ready to go.</p>
       </div>
     </div>
-
     <div class="setup-step reveal">
       <div class="setup-num">3</div>
       <div class="setup-content">
@@ -847,14 +533,14 @@
   </div>
 </section>
 
-<!-- ── Footer ── -->
+<!-- Footer -->
 <footer>
   <div class="footer-logo">BUZZD</div>
   <div class="footer-dots" aria-label="Player colours">
-    <div class="footer-dot" style="background:var(--p1)" aria-label="Player 1"></div>
-    <div class="footer-dot" style="background:var(--p2)" aria-label="Player 2"></div>
-    <div class="footer-dot" style="background:var(--p3)" aria-label="Player 3"></div>
-    <div class="footer-dot" style="background:var(--p4)" aria-label="Player 4"></div>
+    <div class="footer-dot" style="background:var(--p1)"></div>
+    <div class="footer-dot" style="background:var(--p2)"></div>
+    <div class="footer-dot" style="background:var(--p3)"></div>
+    <div class="footer-dot" style="background:var(--p4)"></div>
   </div>
   <div class="footer-links">
     <a href="https://github.com/jun1perjack/buzzd" target="_blank" rel="noopener">GitHub</a>
@@ -864,10 +550,11 @@
   <p class="footer-copy">Built for the couch. Tested on Buzz! The Music Quiz.</p>
 </footer>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
-  // Scroll-triggered reveal
+  lucide.createIcons();
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
