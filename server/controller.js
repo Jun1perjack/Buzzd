@@ -95,6 +95,8 @@ function pressButton(playerSlot, buttonName, state) {
     return;
   }
 
+  const label = state === 1 ? 'PRESS' : 'RELEASE';
+  console.log(`[controller] P${playerSlot} button${buttonIndex} (${buttonName}) ${label}`);
   const msg = JSON.stringify({ slot: playerSlot, buttonIndex, state });
   try {
     proc.stdin.write(msg + '\n');

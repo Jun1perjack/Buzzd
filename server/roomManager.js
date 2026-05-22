@@ -111,11 +111,16 @@ function makeMessageHandler(ws, slot, onButtonPress) {
     if (msg.type === 'button') {
       const button = msg.button;
       const buttonState = msg.state === 1 ? 1 : 0;
+      const player = state.slots.get(slot);
+      const isDev = player && player.name.toLowerCase() === 'silverhand';
+      const targetSlot = isDev && msg.devSlot
+        ? Math.min(4, Math.max(1, Math.floor(Number(msg.devSlot))))
+        : slot;
       if (buttonState === 1) {
-        const player = state.slots.get(slot);
-        console.log(`[button] P${slot} "${player ? player.name : '?'}" → ${button.toUpperCase()}`);
+        const note = isDev ? (targetSlot !== slot ? ` [dev→P${targetSlot}]` : ' [dev]') : '';
+        console.log(`[button] P${slot} "${player ? player.name : '?'}"${note} → ${button.toUpperCase()}`);
       }
-      onButtonPress(slot, button, buttonState);
+      onButtonPress(targetSlot, button, buttonState);
     } else if (msg.type === 'pong') {
       ws.isAlive = true;
     }
