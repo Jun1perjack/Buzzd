@@ -3,8 +3,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-const BASE_CODE = 0x2c0; // BTN_TRIGGER_HAPPY1 = 704
-
 const BUTTON_INDEX = {
   buzz: 0,
   blue: 1,
@@ -86,17 +84,8 @@ function pressButton(playerSlot, buttonName, state) {
   const buttonIndex = BUTTON_INDEX[buttonName];
   if (buttonIndex === undefined) return;
 
-  const code = BASE_CODE + (playerSlot - 1) * 5 + buttonIndex;
-  const sdlButton = (playerSlot - 1) * 5 + buttonIndex;
-  const label = state === 1 ? 'PRESS' : 'RELEASE';
-  console.log(`[uinput] P${playerSlot} ${buttonName.toUpperCase().padEnd(6)} ${label.padEnd(7)} → SDL-?/Button${sdlButton}  (BTN_TRIGGER_HAPPY${sdlButton + 1}, code ${code})`);
+  if (fallbackMode || !proc) return;
 
-  if (fallbackMode || !proc) {
-    return;
-  }
-
-  const label = state === 1 ? 'PRESS' : 'RELEASE';
-  console.log(`[controller] P${playerSlot} button${buttonIndex} (${buttonName}) ${label}`);
   const msg = JSON.stringify({ slot: playerSlot, buttonIndex, state });
   try {
     proc.stdin.write(msg + '\n');

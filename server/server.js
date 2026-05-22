@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const http = require('http');
+const { spawn } = require('child_process');
 const express = require('express');
 const cors = require('cors');
 const WebSocket = require('ws');
@@ -14,6 +15,7 @@ const controller = require('./controller');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const VERCEL_URL = (process.env.VERCEL_URL || 'http://localhost:5500').replace(/\/$/, '');
+const PCSX2_CMD = process.env.PCSX2_CMD || null;
 const PING_INTERVAL_MS = 30_000;
 
 // ── Express REST server ────────────────────────────────────────────────────────
@@ -26,6 +28,18 @@ app.get('/health', (_req, res) => res.send('OK'));
 
 app.get('/status', (_req, res) => {
   res.json(roomManager.getStatus());
+});
+
+app.post('/start', (_req, res) => {
+  roomManager.startGame(wss);
+  if (PCSX2_CMD) {
+    const child = spawn(PCSX2_CMD, { shell: true, detached: true, stdio: 'ignore' });
+    child.unref();
+    console.log(`[server] Launched: ${PCSX2_CMD}`);
+  } else {
+    console.log('[server] PCSX2_CMD not set — skipping launch');
+  }
+  res.json({ ok: true });
 });
 
 // ── HTTP + WebSocket server ────────────────────────────────────────────────────
@@ -85,6 +99,7 @@ async function start() {
 
   let wsUrl = `ws://localhost:${PORT}`;
   let joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+  let hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://localhost:${PORT}`)}`;
 
   if (process.env.NGROK_AUTHTOKEN) {
     try {
@@ -96,6 +111,7 @@ async function start() {
       wsUrl = tunnelUrl.replace(/^https?/, 'wss');
       roomManager.setNgrokUrl(tunnelUrl);
       joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+      hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(tunnelUrl)}`;
       console.log(`Ngrok tunnel: ${tunnelUrl}`);
     } catch (err) {
       console.warn(`[ngrok] Failed to start tunnel: ${err.message}`);
@@ -105,10 +121,10 @@ async function start() {
     console.log('[ngrok] No NGROK_AUTHTOKEN set — skipping tunnel. Players must be on the same network.');
   }
 
-  printBanner(roomCode, joinUrl, wsUrl);
+  printBanner(roomCode, joinUrl, hostUrl, wsUrl);
 }
 
-function printBanner(roomCode, joinUrl, wsUrl) {
+function printBanner(roomCode, joinUrl, hostUrl, wsUrl) {
   console.log('\n╔══════════════════════════════════════════════╗');
   console.log('║           BUZZD CONTROLLER                   ║');
   console.log('╠══════════════════════════════════════════════╣');
@@ -117,14 +133,9 @@ function printBanner(roomCode, joinUrl, wsUrl) {
 
   console.log('Scan this QR code to join:\n');
   qrcode.generate(joinUrl, { small: true });
-  console.log(`\nJoin URL: ${joinUrl}`);
-  console.log(`WS URL  : ${wsUrl}`);
-
-  console.log('\nButton mapping (PCSX2 USB → phone button):');
-  console.log('  P1: Red=BUZZ  Blue=Blue  Orange=Orange  Green=Green  Yellow=Yellow');
-  console.log('  P2: same pattern, buttons 6–10');
-  console.log('  P3: same pattern, buttons 11–15');
-  console.log('  P4: same pattern, buttons 16–20');
+  console.log(`\nJoin URL : ${joinUrl}`);
+  console.log(`Host URL : ${hostUrl}`);
+  console.log(`WS URL   : ${wsUrl}`);
   console.log('\nWaiting for players...\n');
 }
 
