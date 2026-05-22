@@ -17,6 +17,9 @@ echo -e "${BOLD}║     BUZZD SETUP              ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════╝${NC}"
 echo ""
 
+# Ensure git pull doesn't complain about divergent branches
+git -C "$BUZZD_DIR" config pull.rebase false 2>/dev/null || true
+
 # ── 1. npm install ────────────────────────────────────────────────────────────
 echo -e "${BOLD}[1/5] Installing server dependencies...${NC}"
 export NVM_DIR="$HOME/.nvm"
