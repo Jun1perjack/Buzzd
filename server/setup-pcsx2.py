@@ -25,32 +25,88 @@ BUTTON_LABELS = ["Red", "Blue", "Orange", "Green", "Yellow"]
 # PCSX2 key format: BuzzDevice_Red1, BuzzDevice_Blue1, etc.
 
 
-# ── Device detection via /proc/bus/input/devices ─────────────────────────────
+# ── Device detection via sysfs (mirrors SDL2's evdev enumeration) ─────────────
+
+# On 64-bit Linux each capabilities word is an unsigned long (64 bits).
+_WORD_BITS = 64
+
+def _read_cap_int(path):
+    """Read a sysfs capabilities file; return as Python int where bit N = code N."""
+    try:
+        with open(path) as f:
+            words = f.read().split()
+    except OSError:
+        return 0
+    result = 0
+    for w in words:
+        result = (result << _WORD_BITS) | int(w, 16)
+    return result
+
+
+def _is_sdl_joystick(event_num):
+    """
+    Return True if SDL2 would enumerate /dev/input/eventN as a joystick.
+    SDL classifies a device as a joystick when it has:
+      - EV_ABS with at least one axis, OR
+      - EV_KEY with buttons in the joystick/gamepad/trigger-happy ranges.
+    """
+    base = f"/sys/class/input/event{event_num}/device/capabilities"
+    ev = _read_cap_int(f"{base}/ev")
+
+    EV_KEY = 1
+    EV_ABS = 3
+
+    if ev & (1 << EV_ABS):
+        if _read_cap_int(f"{base}/abs"):
+            return True
+
+    if ev & (1 << EV_KEY):
+        key = _read_cap_int(f"{base}/key")
+        # BTN_MISC/JOYSTICK 0x100–0x11f, BTN_GAMEPAD 0x120–0x13f,
+        # BTN_DIGI 0x140–0x14f, BTN_WHEEL 0x150–0x151,
+        # BTN_TRIGGER_HAPPY 0x2c0–0x2e7
+        for lo, hi in ((0x100, 0x152), (0x2c0, 0x2e8)):
+            for bit in range(lo, hi):
+                if key & (1 << bit):
+                    return True
+
+    return False
+
 
 def find_buzz_sdl_index():
     """
-    Parse /proc/bus/input/devices to find the SDL joystick index for the
-    Buzz Controller. PCSX2 uses SDL, which numbers joysticks by their js
-    device number (js0=SDL-0, js1=SDL-1, etc.).
-    Returns (sdl_index, handlers_string) or (None, None).
+    Find the 0-based SDL joystick index for DEVICE_NAME.
+    SDL2 enumerates /dev/input/eventN devices (sorted by N) that pass its
+    joystick classification test — the position of our device in that list
+    is its SDL index.
+    Returns (sdl_index, event_device_name) or (None, None).
     """
+    input_dir = "/sys/class/input"
     try:
-        with open("/proc/bus/input/devices") as f:
-            content = f.read()
+        entries = os.listdir(input_dir)
     except OSError:
         return None, None
 
-    for block in content.strip().split("\n\n"):
-        if f'Name="{DEVICE_NAME}"' not in block:
+    event_nums = sorted(
+        int(e[5:]) for e in entries
+        if e.startswith("event") and e[5:].isdigit()
+    )
+
+    sdl_idx = 0
+    for num in event_nums:
+        try:
+            with open(f"{input_dir}/event{num}/device/name") as f:
+                name = f.read().strip()
+        except OSError:
             continue
-        for line in block.splitlines():
-            if line.startswith("H: Handlers="):
-                handlers = line.split("=", 1)[1]
-                m = re.search(r"\bjs(\d+)\b", handlers)
-                if m:
-                    return int(m.group(1)), handlers.strip()
-        # Device found but no js handler — uinput permissions may be missing
-        return None, None
+
+        if not _is_sdl_joystick(num):
+            continue
+
+        if name == DEVICE_NAME:
+            return sdl_idx, f"event{num}"
+
+        sdl_idx += 1
 
     return None, None
 
@@ -98,12 +154,12 @@ def main():
         sys.exit(1)
 
     # 2. Find SDL joystick index
-    sdl_index, handlers = find_buzz_sdl_index()
+    sdl_index, event_dev = find_buzz_sdl_index()
     if sdl_index is None:
-        print(f'✗ Virtual "{DEVICE_NAME}" device not found in /proc/bus/input/devices.')
+        print(f'✗ Virtual "{DEVICE_NAME}" not found in /sys/class/input.')
         print("  Make sure the server started cleanly and uinput permissions are set up.")
         sys.exit(1)
-    print(f'✓ Found "{DEVICE_NAME}" (handlers: {handlers})')
+    print(f'✓ Found "{DEVICE_NAME}" ({event_dev})')
     print(f'  SDL joystick index: {sdl_index}  →  will use SDL-{sdl_index}/JoyButton0 … JoyButton19')
 
     # 3. Check PCSX2.ini exists
