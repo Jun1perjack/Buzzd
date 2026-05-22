@@ -344,6 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function onPress(e) {
       e.preventDefault();
       el.classList.add('pressed');
+      if (navigator.vibrate) {
+        navigator.vibrate(button === 'buzz' ? [30, 20, 60] : 15);
+      }
       sendButton(button, 1);
     }
 
