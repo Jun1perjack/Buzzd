@@ -11,6 +11,10 @@ let roomCode = null;
 let playerName = null;
 let hasJoined = false;
 
+let devMode = false;
+let ownSlot = 1;
+let devTargetSlot = 1;
+
 // ── DOM refs ─────────────────────────────────────────────────────────────────
 
 const joinScreen = document.getElementById('join-screen');
@@ -162,25 +166,53 @@ function scheduleReconnect() {
 // ── Controller UI ─────────────────────────────────────────────────────────────
 
 function showController(slot, name) {
+  ownSlot = slot;
   joinScreen.classList.add('hidden');
   controllerScreen.classList.remove('hidden');
   playerInfo.innerHTML = `Player <strong>${slot}</strong> — <strong>${name}</strong>`;
+
+  if (name.toLowerCase() === 'silverhand') {
+    devMode = true;
+    devTargetSlot = slot;
+    controllerScreen.classList.add('dev-mode');
+    document.getElementById('dev-panel').classList.remove('hidden');
+    document.querySelectorAll('.dev-slot-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.slot) === slot);
+    });
+    document.getElementById('dev-target-label').textContent = `P${slot}`;
+  }
 }
 
 function sendButton(button, state) {
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'button', button, state }));
+    const msg = { type: 'button', button, state };
+    if (devMode) msg.devSlot = devTargetSlot;
+    ws.send(JSON.stringify(msg));
   }
 }
 
 function releaseAllButtons() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   for (const button of BUTTONS) {
-    sendButton(button, 0);
+    ws.send(JSON.stringify({ type: 'button', button, state: 0 }));
+    if (devMode && devTargetSlot !== ownSlot) {
+      ws.send(JSON.stringify({ type: 'button', button, state: 0, devSlot: devTargetSlot }));
+    }
   }
 }
 
 // Attach events to all controller buttons
 document.addEventListener('DOMContentLoaded', () => {
+  // Dev slot picker
+  document.querySelectorAll('.dev-slot-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      devTargetSlot = parseInt(btn.dataset.slot);
+      document.querySelectorAll('.dev-slot-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('dev-target-label').textContent = `P${devTargetSlot}`;
+    });
+  });
+
   const allButtons = document.querySelectorAll('[data-button]');
 
   allButtons.forEach((el) => {

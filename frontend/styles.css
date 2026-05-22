@@ -216,6 +216,100 @@ html, body {
 .btn-answer[data-button="green"]  { background: var(--buzz-green); }
 .btn-answer[data-button="yellow"] { background: var(--buzz-yellow); color: #111; }
 
+/* ── Dev mode panel ─────────────────────────────────────────────────────────── */
+
+#controller-screen.dev-mode {
+  height: auto;
+  min-height: 100dvh;
+  overflow-y: auto;
+  justify-content: flex-start;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+#controller-screen.dev-mode .buzz-wrap { flex: none; }
+
+#controller-screen.dev-mode .btn-buzz {
+  width: min(52vw, 200px);
+  height: min(52vw, 200px);
+}
+
+#dev-panel {
+  width: 100%;
+  max-width: 360px;
+  padding: 14px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  text-align: center;
+}
+
+.dev-slot-row {
+  display: flex;
+  gap: 8px;
+}
+
+.dev-slot-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: transparent;
+  color: #666;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.dev-slot-btn.active {
+  border-color: var(--buzz-red);
+  color: var(--text);
+  background: rgba(227, 30, 36, 0.15);
+}
+
+.dev-btn-row {
+  display: flex;
+  gap: 6px;
+}
+
+.dev-action-btn {
+  flex: 1;
+  height: 46px;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: transform 0.08s, opacity 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dev-action-btn:active,
+.dev-action-btn.pressed { transform: scale(0.93); opacity: 0.8; }
+
+.dev-action-btn[data-button="buzz"]   { background: var(--buzz-red); }
+.dev-action-btn[data-button="blue"]   { background: var(--buzz-blue); }
+.dev-action-btn[data-button="orange"] { background: var(--buzz-orange); }
+.dev-action-btn[data-button="green"]  { background: var(--buzz-green); }
+.dev-action-btn[data-button="yellow"] { background: var(--buzz-yellow); color: #111; }
+
 /* ── Reconnect overlay ──────────────────────────────────────────────────────── */
 
 #reconnect-overlay {
