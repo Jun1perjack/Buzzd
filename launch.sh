@@ -25,7 +25,7 @@ done
 
 HOST_URL="http://localhost:$PORT/host"
 
-KIOSK="--kiosk --no-first-run --disable-features=TranslateUI --noerrdialogs"
+KIOSK="--kiosk --no-first-run --disable-features=TranslateUI --noerrdialogs --user-data-dir=/tmp/buzzd-chrome"
 flatpak run org.chromium.Chromium $KIOSK "$HOST_URL" 2>/dev/null \
   || flatpak run com.google.Chrome  $KIOSK "$HOST_URL" 2>/dev/null \
   || chromium-browser               $KIOSK "$HOST_URL" 2>/dev/null \
