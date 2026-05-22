@@ -1,0 +1,55 @@
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1E1E45"/>
+      <stop offset="100%" stop-color="#0D0D1A"/>
+    </radialGradient>
+    <linearGradient id="buzzGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF2255"/>
+      <stop offset="100%" stop-color="#BB0030"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF7200"/>
+      <stop offset="100%" stop-color="#E8003D"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="256" height="256" rx="40" fill="url(#bg)"/>
+
+  <!-- Glow blob -->
+  <ellipse cx="128" cy="118" rx="90" ry="80" fill="#E8003D" opacity="0.12"/>
+
+  <!-- Big BUZZ button circle -->
+  <circle cx="128" cy="118" r="82" fill="url(#buzzGrad)" filter="url(#glow)"/>
+  <circle cx="128" cy="118" r="74" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+
+  <!-- BUZZ text on button -->
+  <text x="128" y="108"
+    font-family="Arial Black, Impact, sans-serif"
+    font-size="38" font-weight="900"
+    fill="white" text-anchor="middle"
+    letter-spacing="2">BUZZ!</text>
+
+  <!-- BUZZD name below button -->
+  <text x="128" y="228"
+    font-family="Arial Black, Impact, sans-serif"
+    font-size="30" font-weight="900"
+    fill="url(#titleGrad)"
+    text-anchor="middle"
+    letter-spacing="4"
+    filter="url(#glow)">BUZZD</text>
+
+  <!-- Player colour dots -->
+  <circle cx="88" cy="193" r="8" fill="#FFD500"/>
+  <circle cx="108" cy="193" r="8" fill="#3B9EFF"/>
+  <circle cx="128" cy="193" r="8" fill="#4CAF50"/>
+  <circle cx="148" cy="193" r="8" fill="#C850F8"/>
+
+  <!-- Border glow -->
+  <rect width="256" height="256" rx="40" fill="none" stroke="url(#titleGrad)" stroke-width="2" opacity="0.4"/>
+</svg>

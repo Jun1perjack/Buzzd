@@ -1,184 +1,200 @@
-# Buzzd
+<div align="center">
 
-A Jackbox-style Buzz! Quiz TV controller for PCSX2 on Steam Deck. Players join via their phones and their button presses are injected into PCSX2 as virtual controller inputs.
+# BUZZD
+
+### Turn your phones into Buzz! controllers
+
+*Self-hosted multiplayer Buzz! PS2 on Steam Deck — no dongles, no apps, just scan and play*
+
+[![Players](https://img.shields.io/badge/players-up%20to%204-red?style=flat-square)](https://github.com/jun1perjack/buzzd)
+[![Platform](https://img.shields.io/badge/platform-Steam%20Deck-1a9fff?style=flat-square)](https://github.com/jun1perjack/buzzd)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-green?style=flat-square)](https://github.com/jun1perjack/buzzd)
+
+</div>
+
+---
+
+## What is this?
+
+BUZZD is a self-hosted server that turns any phone browser into a working Buzz! controller. Players scan a QR code, pick a name, and instantly get a big red **BUZZ** button and four coloured answer buttons — no app install, no dongles, no fussing with USB receivers.
+
+The host (Player 1) browses the ROM library from their phone, picks a game, and hits Start. PCSX2 launches automatically. Everyone plays.
 
 ```
-Phone browsers  ──WebSocket──▶  ngrok  ──▶  Steam Deck server  ──▶  uinput  ──▶  PCSX2
+📱 phones  ──WebSocket──▶  ngrok tunnel  ──▶  Steam Deck  ──uinput──▶  PCSX2
 ```
 
 ---
 
-## How It Works
+## Features
 
-1. You run the Node.js server on your Steam Deck
-2. The server auto-starts an ngrok tunnel and prints a QR code to the terminal
-3. Players scan the QR code with their phones and tap "Join Game"
-4. Button presses are sent over WebSocket and injected into PCSX2 as gamepad inputs
-5. PCSX2's Buzz plugin reads those inputs like a real controller
-
----
-
-## Prerequisites
-
-- **Node.js** ≥ 18 on your Steam Deck
-- A free **ngrok account** — sign up at [ngrok.com](https://ngrok.com) and copy your auth token
-- PCSX2 installed on the Steam Deck (via Discover or Flatpak)
-- The Buzz! Quiz TV ISO loaded in PCSX2
-- A **Vercel** account for hosting the frontend (free tier is fine)
+- 📱 **Works on any phone** — browser-based, no app needed, no pairing
+- 👥 **Up to 4 players** — each gets a BUZZ button + 4 colour answer buttons
+- 🎮 **Game picker** — host browses your ROM library with SteamGridDB cover art
+- 🚀 **Steam-native launcher** — shows up as a game, opens a fullscreen lobby with QR code
+- 🌐 **Play over internet** — ngrok tunnel means players don't need to be on the same Wi-Fi
+- 👑 **Host picks and starts** — Player 1 selects the game from their phone
+- 🔌 **Virtual controller via uinput** — no special PCSX2 plugins or config required
 
 ---
 
-## 1 — Steam Deck Server Setup
+## How it works
 
-### uinput permissions (do this once)
+1. **Launch Buzzd from Steam** → server starts, fullscreen lobby appears with a QR code
+2. **Players scan** the QR on their phones and enter a name
+3. **Player 1 (host)** sees a game picker with cover art — taps a game to select it
+4. **Tap Start** → PCSX2 launches with that ISO, all phones flip to the controller view
+5. **Play!**
 
-The virtual controller requires access to `/dev/uinput`. On SteamOS:
+---
+
+## Requirements
+
+| | |
+|---|---|
+| **Steam Deck** | SteamOS 3.x (or any Linux desktop) |
+| **PCSX2** | AppImage or Flatpak — install via Discover |
+| **Buzz! PS2 ISO** | Any Buzz! game ripped to `.iso`, `.bin`, `.chd` etc. |
+| **Node.js ≥ 18** | Install via [nvm](https://github.com/nvm-sh/nvm) |
+| **Chromium** | Install via Discover |
+| **ngrok account** | Free tier works perfectly |
+
+---
+
+## Setup
+
+### 1. Clone and run the setup script
 
 ```bash
-# Switch to Desktop Mode first
+git clone https://github.com/jun1perjack/buzzd ~/Buzzd
+cd ~/Buzzd
+./setup.sh
+```
 
-# Create a udev rule so your user can access uinput
+`setup.sh` walks you through everything interactively:
+
+- Runs `npm install`
+- Auto-detects your PCSX2 path (`.desktop` file, common AppImage locations, Flatpak)
+- Auto-detects your ROMs folder (checks EmuDeck default paths)
+- Asks for your optional SteamGridDB API key (free — for game cover art)
+- Writes `server/.env` with your settings
+- Makes `launch.sh` executable
+
+### 2. Add to Steam
+
+1. Desktop Mode → Steam → **Add a Game** → **Add a Non-Steam Game**
+2. Browse to `~/Buzzd/launch.sh` → **Add Selected Programs**
+3. Rename the entry to **Buzzd**
+4. Right-click → **Manage** → **Set custom artwork** — grab the images from `steam-art/`
+
+### 3. Set up uinput (one-time)
+
+The virtual controller needs write access to `/dev/uinput`:
+
+```bash
 echo 'KERNEL=="uinput", GROUP="input", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
-
-# Reload udev rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
-
-# Add yourself to the input group
 sudo usermod -aG input $USER
-
-# Log out and back in (or reboot) for the group change to take effect
+# Log out and back in (or reboot)
 ```
 
-> **SteamOS note:** The base filesystem is immutable. If `npm install` fails with native build errors, run the server inside a **Distrobox** container (Arch-based) or enable Developer Mode in Steam Settings and install `base-devel` via `pacman`.
+> You may need to redo this after a major SteamOS update.
 
-### Install and run
+### 4. Get a free ngrok token
+
+Sign up at [ngrok.com](https://ngrok.com), copy your auth token, and add it to `server/.env`:
+
+```env
+NGROK_AUTHTOKEN=your_token_here
+```
+
+Without ngrok, players must be on the same Wi-Fi as the Deck.
+
+### 5. SteamGridDB key (optional — for cover art)
+
+[steamgriddb.com](https://www.steamgriddb.com) → sign in → Preferences → API → Generate key:
+
+```env
+STEAMGRIDDB_API_KEY=your_key_here
+```
+
+---
+
+## Configuration (`server/.env`)
+
+| Variable | Description | Example |
+|---|---|---|
+| `NGROK_AUTHTOKEN` | ngrok auth token | `abc123...` |
+| `ROMS_DIR` | Path to your PS2 ROMs folder | `/home/deck/Emulation/roms/ps2` |
+| `ROMS_FILTER` | Only show ROMs whose filename contains this | `buzz` |
+| `PCSX2_CMD` | PCSX2 base command — ISO appended at runtime | `flatpak run net.pcsx2.PCSX2 --fullscreen` |
+| `STEAMGRIDDB_API_KEY` | For game cover art in the picker | `abc123...` |
+| `VERCEL_URL` | Frontend URL | `https://buzzd.vercel.app` |
+| `ROOM_CODE` | Pin the room code across sessions | `BUZZ42` |
+
+---
+
+## Updating
 
 ```bash
-# Clone the repo
-git clone https://github.com/jun1perjack/buzzd.git
-cd buzzd/server
-
-# Install dependencies
-npm install
-
-# Copy the example env file and fill in your ngrok auth token
-cp .env.example .env
-nano .env   # set NGROK_AUTHTOKEN and VERCEL_URL
-
-# Start the server
-npm start
+cd ~/Buzzd
+git pull origin main
+./setup.sh
 ```
 
-You should see output like:
-
-```
-╔══════════════════════════════════════════════╗
-║           BUZZD CONTROLLER                   ║
-╠══════════════════════════════════════════════╣
-║  Room code : ABCD12                          ║
-╚══════════════════════════════════════════════╝
-
-Scan this QR code to join:
-
-[QR code here]
-
-Join URL: https://buzzd.vercel.app/?server=wss%3A%2F%2Fabc.ngrok-free.app&code=ABCD12
-Ngrok tunnel: https://abc.ngrok-free.app
-```
-
-Players scan the QR code and enter their name. Done.
-
----
-
-## 2 — ngrok Setup
-
-1. Create a free account at [ngrok.com](https://ngrok.com)
-2. Copy your **auth token** from the ngrok dashboard
-3. Paste it as `NGROK_AUTHTOKEN` in `server/.env`
-
-The server starts ngrok automatically — no separate terminal needed.
-
-> **Free tier:** Your ngrok URL changes every session. If you have a paid ngrok account with a static domain, put it in `.env` — it will be reused automatically.
-
----
-
-## 3 — Deploy Frontend to Vercel
-
-```bash
-# Install Vercel CLI if you don't have it
-npm install -g vercel
-
-cd frontend/
-vercel --prod
-```
-
-Follow the prompts. After deployment, copy the URL (e.g. `https://buzzd.vercel.app`) and set it as `VERCEL_URL` in `server/.env`.
-
-Alternatively, push to GitHub and connect the repo in the Vercel dashboard. Set the **root directory** to `frontend/`.
-
-### Host page
-
-Visit `https://buzzd.vercel.app/host` to see a monitoring view of connected players. If you want to share a QR code from a screen instead of the terminal, paste your ngrok URL there.
-
----
-
-## 4 — Configure PCSX2
-
-The server creates a virtual gamepad named **"Buzz Controller"** with 20 buttons mapped to `BTN_TRIGGER_HAPPY1` through `BTN_TRIGGER_HAPPY20`.
-
-### Button layout
-
-| Code | Decimal | Assignment |
-|------|---------|------------|
-| BTN_TRIGGER_HAPPY1  | 704 | Player 1 — BUZZ |
-| BTN_TRIGGER_HAPPY2  | 705 | Player 1 — Blue |
-| BTN_TRIGGER_HAPPY3  | 706 | Player 1 — Orange |
-| BTN_TRIGGER_HAPPY4  | 707 | Player 1 — Green |
-| BTN_TRIGGER_HAPPY5  | 708 | Player 1 — Yellow |
-| BTN_TRIGGER_HAPPY6  | 709 | Player 2 — BUZZ |
-| ...  | ... | (same pattern × 4) |
-| BTN_TRIGGER_HAPPY20 | 723 | Player 4 — Yellow |
-
-### Steps in PCSX2
-
-1. Start the Buzzd server **before** opening PCSX2 (so the virtual device is present)
-2. In PCSX2: **Settings → Controllers**
-3. Select the **USB** tab
-4. Set USB port 1 to **Buzz Controller**
-5. Click **Configure** and map each of the 20 inputs to the corresponding trigger-happy button on the "Buzz Controller" device
-
-> PCSX2 should auto-detect the device. If it doesn't appear, run `evtest` in a terminal to confirm the virtual device is visible to the OS.
-
----
-
-## 5 — Playing
-
-1. Start `node server.js` on the Steam Deck
-2. Wait for the QR code to appear in the terminal
-3. Players scan the QR code (or visit the join URL) on their phones
-4. Enter a name and tap **Join Game**
-5. Start the game in PCSX2
-
-The big red **BUZZ** button and four coloured answer buttons appear on each player's phone. The page is full-screen optimised for portrait mode.
+Always run `./setup.sh` after pulling — it reapplies permissions and handles new dependencies. Your `.env` values are preserved.
 
 ---
 
 ## Troubleshooting
 
+**Buttons don't register in PCSX2**
+The uinput device must exist before PCSX2 starts. Launching via `launch.sh` or from Steam handles this. If you start PCSX2 manually, start the Buzzd server first.
+
 **`/dev/uinput: permission denied`**
-Run the udev rule steps in section 1. Make sure you've logged out and back in after adding yourself to the `input` group.
+Run the udev rule steps above. Make sure you've logged out and back in after `usermod`.
 
-**`uinput` native module fails to build**
-Install build tools: on SteamOS use a Distrobox Arch container, or run `sudo pacman -S base-devel nodejs npm` in Dev Mode.
+**Server won't start / blank screen from Steam**
+Check `/tmp/buzzd.log` for errors. Make sure `node -v` works in a terminal.
 
-**Players can't connect / QR code leads to wrong URL**
-Make sure `VERCEL_URL` in `.env` matches your deployed Vercel URL exactly (no trailing slash, correct `https://`).
+**PCSX2 doesn't launch with the selected game**
+Test your `PCSX2_CMD` in terminal — paste it with a quoted ISO path on the end. The value in `.env` should be the base command only, no ISO path.
 
-**ngrok shows an interstitial browser page**
-WebSocket connections (used by the player page) bypass the ngrok interstitial automatically. The host page's `/status` polling includes the `ngrok-skip-browser-warning` header.
+**QR code won't connect**
+Check that `NGROK_AUTHTOKEN` is set and the server output shows `Ngrok tunnel: https://...`. Without ngrok, the QR only works on the same network.
 
-**Buttons not registering in PCSX2**
-Ensure PCSX2 is launched *after* the Buzzd server (so the uinput device exists at PCSX2 startup). Re-open the controller config in PCSX2 to re-scan devices.
+**Cover art not loading**
+Cover fetching runs in the background after startup. Wait a few seconds and re-open the game picker. Without `STEAMGRIDDB_API_KEY`, letter placeholders are shown instead.
 
-**Server works but no QR code printed**
-`qrcode-terminal` may not install correctly in some environments. The join URL is always printed as plain text as a fallback — copy it manually.
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Steam Deck                                         │
+│                                                     │
+│  launch.sh                                          │
+│    ├── npm start (server/server.js)                 │
+│    │     ├── roomManager  — player slots            │
+│    │     ├── gameManager  — ROM scan + cover art    │
+│    │     └── controller   — uinput virtual pad      │
+│    │                                                │
+│    └── Chromium → localhost:3000/host  (lobby)      │
+│                                                     │
+└──────────────────────┬──────────────────────────────┘
+                       │ ngrok (wss://)
+           ┌───────────┴────────────┐
+    📱 Players 2–4           📱 Player 1 (host)
+    Controller UI            Game picker → Start
+```
+
+---
+
+<div align="center">
+
+Built for the couch. Tested on *Buzz! The Music Quiz*.
+
+*If something breaks, `/tmp/buzzd.log` is your friend.*
+
+</div>

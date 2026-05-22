@@ -1,0 +1,151 @@
+<svg width="1920" height="620" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D0D1A"/>
+      <stop offset="50%" stop-color="#12122A"/>
+      <stop offset="100%" stop-color="#0D0D1A"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF7200"/>
+      <stop offset="100%" stop-color="#E8003D"/>
+    </linearGradient>
+    <linearGradient id="buzzGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF2255"/>
+      <stop offset="100%" stop-color="#BB0030"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E8003D" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#E8003D" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF7200" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FF7200" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="titleglow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="phoneglow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="620" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.03" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="124" x2="1920" y2="124"/>
+    <line x1="0" y1="248" x2="1920" y2="248"/>
+    <line x1="0" y1="372" x2="1920" y2="372"/>
+    <line x1="0" y1="496" x2="1920" y2="496"/>
+    <line x1="240" y1="0" x2="240" y2="620"/>
+    <line x1="480" y1="0" x2="480" y2="620"/>
+    <line x1="720" y1="0" x2="720" y2="620"/>
+    <line x1="960" y1="0" x2="960" y2="620"/>
+    <line x1="1200" y1="0" x2="1200" y2="620"/>
+    <line x1="1440" y1="0" x2="1440" y2="620"/>
+    <line x1="1680" y1="0" x2="1680" y2="620"/>
+  </g>
+
+  <!-- Left glow blob -->
+  <ellipse cx="480" cy="310" rx="400" ry="200" fill="url(#glow2)"/>
+  <!-- Right glow blobs (behind phones) -->
+  <ellipse cx="1200" cy="280" rx="180" ry="180" fill="url(#glow1)"/>
+  <ellipse cx="1450" cy="320" rx="150" ry="150" fill="url(#glow1)"/>
+  <ellipse cx="1680" cy="290" rx="120" ry="120" fill="url(#glow1)"/>
+
+  <!-- Left: BUZZD title -->
+  <text x="100" y="260"
+    font-family="Arial Black, Impact, sans-serif"
+    font-size="160" font-weight="900"
+    fill="url(#titleGrad)"
+    letter-spacing="8"
+    filter="url(#titleglow)">BUZZD</text>
+
+  <!-- Tagline -->
+  <text x="104" y="330"
+    font-family="Arial, sans-serif"
+    font-size="28" fill="#888"
+    letter-spacing="5">YOUR PHONE. YOUR BUZZ.</text>
+
+  <!-- Feature pills -->
+  <rect x="104" y="370" width="160" height="36" rx="18" fill="#1A1A35" stroke="#333" stroke-width="1"/>
+  <text x="184" y="393" font-family="Arial, sans-serif" font-size="14" fill="#aaa" text-anchor="middle" letter-spacing="2">4 PLAYERS</text>
+
+  <rect x="278" y="370" width="200" height="36" rx="18" fill="#1A1A35" stroke="#333" stroke-width="1"/>
+  <text x="378" y="393" font-family="Arial, sans-serif" font-size="14" fill="#aaa" text-anchor="middle" letter-spacing="2">NO APP NEEDED</text>
+
+  <rect x="492" y="370" width="220" height="36" rx="18" fill="#1A1A35" stroke="#333" stroke-width="1"/>
+  <text x="602" y="393" font-family="Arial, sans-serif" font-size="14" fill="#aaa" text-anchor="middle" letter-spacing="2">STEAM DECK + PCSX2</text>
+
+  <!-- Player colour dots row -->
+  <circle cx="114" cy="460" r="12" fill="#FFD500"/>
+  <circle cx="146" cy="460" r="12" fill="#3B9EFF"/>
+  <circle cx="178" cy="460" r="12" fill="#4CAF50"/>
+  <circle cx="210" cy="460" r="12" fill="#C850F8"/>
+
+  <!-- Divider -->
+  <line x1="860" y1="60" x2="860" y2="560" stroke="#222" stroke-width="1"/>
+
+  <!-- Right side: 3 phones -->
+
+  <!-- Phone 1 (Player 1 - gold) -->
+  <g transform="translate(920, 60)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#1A1A35" stroke="#FFD500" stroke-width="2" filter="url(#phoneglow)"/>
+    <rect x="10" y="18" width="160" height="304" rx="16" fill="#0D0D1A"/>
+    <circle cx="90" cy="170" r="56" fill="url(#buzzGrad)"/>
+    <text x="90" y="178" font-family="Arial Black, sans-serif" font-size="20" fill="white" text-anchor="middle" font-weight="900">BUZZ!</text>
+    <rect x="20" y="240" width="64" height="36" rx="7" fill="#3B9EFF"/>
+    <rect x="96" y="240" width="64" height="36" rx="7" fill="#FF7200"/>
+    <rect x="20" y="284" width="64" height="36" rx="7" fill="#4CAF50"/>
+    <rect x="96" y="284" width="64" height="36" rx="7" fill="#FFD500"/>
+    <text x="90" y="368" font-family="Arial, sans-serif" font-size="13" fill="#FFD500" text-anchor="middle" letter-spacing="2">👑 PLAYER 1</text>
+  </g>
+
+  <!-- Phone 2 (Player 2 - blue) -->
+  <g transform="translate(1140, 100)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#1A1A35" stroke="#3B9EFF" stroke-width="2" filter="url(#phoneglow)"/>
+    <rect x="10" y="18" width="160" height="304" rx="16" fill="#0D0D1A"/>
+    <circle cx="90" cy="170" r="56" fill="url(#buzzGrad)"/>
+    <text x="90" y="178" font-family="Arial Black, sans-serif" font-size="20" fill="white" text-anchor="middle" font-weight="900">BUZZ!</text>
+    <rect x="20" y="240" width="64" height="36" rx="7" fill="#3B9EFF"/>
+    <rect x="96" y="240" width="64" height="36" rx="7" fill="#FF7200"/>
+    <rect x="20" y="284" width="64" height="36" rx="7" fill="#4CAF50"/>
+    <rect x="96" y="284" width="64" height="36" rx="7" fill="#FFD500"/>
+    <text x="90" y="368" font-family="Arial, sans-serif" font-size="13" fill="#3B9EFF" text-anchor="middle" letter-spacing="2">PLAYER 2</text>
+  </g>
+
+  <!-- Phone 3 (Player 3 - green) -->
+  <g transform="translate(1360, 80)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#1A1A35" stroke="#4CAF50" stroke-width="2" filter="url(#phoneglow)"/>
+    <rect x="10" y="18" width="160" height="304" rx="16" fill="#0D0D1A"/>
+    <circle cx="90" cy="170" r="56" fill="url(#buzzGrad)"/>
+    <text x="90" y="178" font-family="Arial Black, sans-serif" font-size="20" fill="white" text-anchor="middle" font-weight="900">BUZZ!</text>
+    <rect x="20" y="240" width="64" height="36" rx="7" fill="#3B9EFF"/>
+    <rect x="96" y="240" width="64" height="36" rx="7" fill="#FF7200"/>
+    <rect x="20" y="284" width="64" height="36" rx="7" fill="#4CAF50"/>
+    <rect x="96" y="284" width="64" height="36" rx="7" fill="#FFD500"/>
+    <text x="90" y="368" font-family="Arial, sans-serif" font-size="13" fill="#4CAF50" text-anchor="middle" letter-spacing="2">PLAYER 3</text>
+  </g>
+
+  <!-- Phone 4 (Player 4 - purple) -->
+  <g transform="translate(1580, 110)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#1A1A35" stroke="#C850F8" stroke-width="2" filter="url(#phoneglow)"/>
+    <rect x="10" y="18" width="160" height="304" rx="16" fill="#0D0D1A"/>
+    <circle cx="90" cy="170" r="56" fill="url(#buzzGrad)"/>
+    <text x="90" y="178" font-family="Arial Black, sans-serif" font-size="20" fill="white" text-anchor="middle" font-weight="900">BUZZ!</text>
+    <rect x="20" y="240" width="64" height="36" rx="7" fill="#3B9EFF"/>
+    <rect x="96" y="240" width="64" height="36" rx="7" fill="#FF7200"/>
+    <rect x="20" y="284" width="64" height="36" rx="7" fill="#4CAF50"/>
+    <rect x="96" y="284" width="64" height="36" rx="7" fill="#FFD500"/>
+    <text x="90" y="368" font-family="Arial, sans-serif" font-size="13" fill="#C850F8" text-anchor="middle" letter-spacing="2">PLAYER 4</text>
+  </g>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="610" width="1920" height="10">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="0" y="610" width="1920" height="10" fill="url(#titleGrad)" opacity="0.6"/>
+</svg>
