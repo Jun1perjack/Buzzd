@@ -14,6 +14,7 @@ let hasJoined = false;
 let devMode = false;
 let ownSlot = 1;
 let devTargetSlot = 1;
+let selectedGameId = null;
 
 // ── DOM refs ─────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,11 @@ const joinScreen = document.getElementById('join-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
 const lobbyPlayersEl = document.getElementById('lobby-players');
 const lobbyInfoEl = document.getElementById('lobby-info');
+const pickerScreen = document.getElementById('picker-screen');
+const pickerInfo = document.getElementById('picker-info');
+const gameGrid = document.getElementById('game-grid');
+const pickerEmpty = document.getElementById('picker-empty');
+const btnStartPicker = document.getElementById('btn-start-picker');
 const controllerScreen = document.getElementById('controller-screen');
 const reconnectOverlay = document.getElementById('reconnect-overlay');
 const reconnectMsg = document.getElementById('reconnect-msg');
@@ -116,9 +122,15 @@ function handleMessage(msg) {
       reconnectOverlay.classList.add('hidden');
       if (msg.gameStarted) {
         showController(msg.slot, msg.playerName);
+      } else if (msg.slot === 1) {
+        showPickerLoading(msg.slot, msg.playerName);
       } else {
         showLobby(msg.slot, msg.playerName);
       }
+      break;
+
+    case 'games':
+      renderGames(msg.games);
       break;
 
     case 'start':
@@ -175,6 +187,69 @@ function scheduleReconnect() {
   }, delay);
 }
 
+// ── Game Picker UI (Player 1 / host) ──────────────────────────────────────────
+
+function showPickerLoading(slot, name) {
+  ownSlot = slot;
+  joinScreen.classList.add('hidden');
+  pickerScreen.classList.remove('hidden');
+  pickerInfo.innerHTML = `You are the host — <strong>Player ${slot}</strong>`;
+}
+
+function renderGames(games) {
+  // Remove any previously rendered cards (keep the empty-state element)
+  Array.from(gameGrid.children).forEach((el) => {
+    if (el !== pickerEmpty) gameGrid.removeChild(el);
+  });
+
+  if (!games.length) {
+    pickerEmpty.classList.remove('hidden');
+    return;
+  }
+  pickerEmpty.classList.add('hidden');
+
+  games.forEach((game) => {
+    const card = document.createElement('button');
+    card.className = 'game-card';
+    card.dataset.gameId = game.id;
+
+    const cover = document.createElement('div');
+    cover.className = 'game-cover';
+
+    const fallback = document.createElement('span');
+    fallback.className = 'game-cover-fallback';
+    fallback.textContent = game.name[0].toUpperCase();
+    cover.appendChild(fallback);
+
+    if (game.coverUrl) {
+      const img = document.createElement('img');
+      img.src = game.coverUrl;
+      img.alt = game.name;
+      img.loading = 'lazy';
+      img.onerror = () => img.remove();
+      cover.appendChild(img);
+    }
+
+    const label = document.createElement('span');
+    label.className = 'game-name';
+    label.textContent = game.name;
+
+    card.appendChild(cover);
+    card.appendChild(label);
+    card.addEventListener('click', () => selectGame(game.id));
+    gameGrid.appendChild(card);
+  });
+}
+
+function selectGame(id) {
+  selectedGameId = id;
+  document.querySelectorAll('.game-card').forEach((c) => {
+    c.classList.toggle('selected', c.dataset.gameId === id);
+  });
+  btnStartPicker.disabled = false;
+  btnStartPicker.textContent = 'Start Game ▶';
+}
+
 // ── Lobby UI ──────────────────────────────────────────────────────────────────
 
 function showLobby(slot, name) {
@@ -183,6 +258,7 @@ function showLobby(slot, name) {
   lobbyScreen.classList.remove('hidden');
   lobbyInfoEl.innerHTML = `You are <strong>Player ${slot}</strong> — <strong>${name}</strong>`;
 }
+
 
 function updateLobbyPlayers(players) {
   if (lobbyScreen.classList.contains('hidden')) return;
@@ -206,6 +282,7 @@ function showController(slot, name) {
   ownSlot = slot;
   joinScreen.classList.add('hidden');
   lobbyScreen.classList.add('hidden');
+  pickerScreen.classList.add('hidden');
   controllerScreen.classList.remove('hidden');
   playerInfo.innerHTML = `Player <strong>${slot}</strong> — <strong>${name}</strong>`;
 
@@ -241,6 +318,14 @@ function releaseAllButtons() {
 
 // Attach events to all controller buttons
 document.addEventListener('DOMContentLoaded', () => {
+  // Game picker start button
+  btnStartPicker.addEventListener('click', () => {
+    if (!selectedGameId || !ws || ws.readyState !== WebSocket.OPEN) return;
+    btnStartPicker.disabled = true;
+    btnStartPicker.textContent = 'Starting…';
+    ws.send(JSON.stringify({ type: 'start', gameId: selectedGameId }));
+  });
+
   // Dev slot picker
   document.querySelectorAll('.dev-slot-btn').forEach(btn => {
     btn.addEventListener('click', () => {

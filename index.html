@@ -51,11 +51,27 @@
   </div>
 </div>
 
+<!-- Game Picker Screen (Player 1 / host only) -->
+<div id="picker-screen" class="hidden">
+  <div class="picker-header">
+    <h2>Choose a Game</h2>
+    <p id="picker-info" class="player-info"></p>
+  </div>
+  <div id="game-grid" class="game-grid">
+    <p id="picker-empty" class="picker-empty hidden">
+      No ROMs found.<br>Set <code>ROMS_DIR</code> in server/.env
+    </p>
+  </div>
+  <div class="picker-footer">
+    <button id="btn-start-picker" class="btn-start-game" disabled>Select a game to start</button>
+  </div>
+</div>
+
 <!-- Lobby Screen -->
 <div id="lobby-screen" class="hidden screen">
   <div class="lobby-card">
     <h1>BUZZD</h1>
-    <p class="lobby-subtitle">Waiting for host to start…</p>
+    <p class="lobby-subtitle">Host is picking a game…</p>
     <div id="lobby-players" class="lobby-player-list"></div>
     <p id="lobby-info" class="player-info" style="margin-top:12px;"></p>
   </div>

@@ -12,11 +12,30 @@ const qrcode = require('qrcode-terminal');
 
 const roomManager = require('./roomManager');
 const controller = require('./controller');
+const gameManager = require('./gameManager');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const VERCEL_URL = (process.env.VERCEL_URL || 'http://localhost:5500').replace(/\/$/, '');
-const PCSX2_CMD = process.env.PCSX2_CMD || null;
 const PING_INTERVAL_MS = 30_000;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function send(ws, obj) {
+  if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(obj));
+}
+
+function launchPcsx2(gameId) {
+  const base = process.env.PCSX2_CMD;
+  if (!base) {
+    console.log('[server] PCSX2_CMD not set — skipping launch');
+    return;
+  }
+  const game = gameId ? gameManager.getGame(gameId) : null;
+  const cmd = game ? `${base} "${game.filepath}"` : base;
+  const child = spawn(cmd, { shell: true, detached: true, stdio: 'ignore' });
+  child.unref();
+  console.log(`[server] Launched: ${cmd}`);
+}
 
 // ── Express REST server ────────────────────────────────────────────────────────
 
@@ -30,15 +49,15 @@ app.get('/status', (_req, res) => {
   res.json(roomManager.getStatus());
 });
 
-app.post('/start', (_req, res) => {
+app.get('/games', (_req, res) => {
+  res.json(gameManager.getGames());
+});
+
+// Host-page "Start Game" button (no game selection — launches to PCSX2 menu or PCSX2_CMD as-is)
+app.post('/start', (req, res) => {
+  const { gameId } = req.body || {};
   roomManager.startGame(wss);
-  if (PCSX2_CMD) {
-    const child = spawn(PCSX2_CMD, { shell: true, detached: true, stdio: 'ignore' });
-    child.unref();
-    console.log(`[server] Launched: ${PCSX2_CMD}`);
-  } else {
-    console.log('[server] PCSX2_CMD not set — skipping launch');
-  }
+  launchPcsx2(gameId || null);
   res.json({ ok: true });
 });
 
@@ -57,28 +76,30 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'join') {
       roomManager.handleJoin(ws, msg, wss, controller.pressButton.bind(controller));
+      // If Player 1 just joined and game hasn't started, send the game list
+      if (ws.buzzSlot === 1 && !roomManager.getStatus().gameStarted) {
+        send(ws, { type: 'games', games: gameManager.getGames() });
+      }
+    } else if (msg.type === 'start') {
+      // Only Player 1 (host) can start the game from their phone
+      if (ws.buzzSlot === 1) {
+        roomManager.startGame(wss);
+        launchPcsx2(msg.gameId || null);
+      }
     } else if (msg.type === 'pong') {
       ws.isAlive = true;
     }
-    // button/release messages are handled per-player in roomManager
+    // button messages are handled per-player in roomManager
   });
 
-  ws.on('close', () => {
-    roomManager.handleDisconnect(ws, wss);
-  });
-
-  ws.on('error', () => {
-    roomManager.handleDisconnect(ws, wss);
-  });
+  ws.on('close', () => roomManager.handleDisconnect(ws, wss));
+  ws.on('error', () => roomManager.handleDisconnect(ws, wss));
 });
 
 // Keepalive ping
 const pingInterval = setInterval(() => {
   for (const ws of wss.clients) {
-    if (!ws.isAlive) {
-      ws.terminate();
-      continue;
-    }
+    if (!ws.isAlive) { ws.terminate(); continue; }
     ws.isAlive = false;
     ws.send(JSON.stringify({ type: 'ping' }));
   }
@@ -90,6 +111,7 @@ wss.on('close', () => clearInterval(pingInterval));
 
 async function start() {
   await controller.init();
+  await gameManager.init(process.env.ROMS_DIR, process.env.STEAMGRIDDB_API_KEY);
 
   server.listen(PORT, () => {
     console.log(`WebSocket server listening on port ${PORT}`);
@@ -107,7 +129,7 @@ async function start() {
         addr: PORT,
         authtoken: process.env.NGROK_AUTHTOKEN,
       });
-      const tunnelUrl = tunnel.url(); // https://xxx.ngrok-free.app
+      const tunnelUrl = tunnel.url();
       wsUrl = tunnelUrl.replace(/^https?/, 'wss');
       roomManager.setNgrokUrl(tunnelUrl);
       joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
