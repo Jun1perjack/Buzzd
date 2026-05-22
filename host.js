@@ -122,7 +122,7 @@ function renderPlayers(players) {
     const player = players.find((p) => p.slot === num);
 
     if (player) {
-      nameEl.textContent = player.name;
+      nameEl.textContent = player.slot === 1 ? `👑 ${player.name}` : player.name;
       nameEl.classList.remove('slot-empty');
       dot.className = `slot-dot${player.connected ? ' connected' : ''}`;
     } else {
@@ -140,8 +140,8 @@ function renderQR(url) {
   qrCanvas.innerHTML = '';
   new QRCode(qrCanvas, {
     text: url,
-    width: 240,
-    height: 240,
+    width: 300,
+    height: 300,
     colorDark: '#000000',
     colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M,
