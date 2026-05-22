@@ -18,14 +18,22 @@ function playClick() {
   osc.start(); osc.stop(ctx.currentTime + 0.025);
 }
 function playBuzz() {
-  const ctx = _ctx(), osc = ctx.createOscillator(), g = ctx.createGain();
-  osc.connect(g); g.connect(ctx.destination);
-  osc.type = 'square';
-  osc.frequency.setValueAtTime(130, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.18);
-  g.gain.setValueAtTime(0.3, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-  osc.start(); osc.stop(ctx.currentTime + 0.19);
+  const ctx = _ctx(), t = ctx.currentTime;
+  // Sharp click transient
+  const click = ctx.createOscillator(), cg = ctx.createGain();
+  click.connect(cg); cg.connect(ctx.destination);
+  click.type = 'sine'; click.frequency.value = 1100;
+  cg.gain.setValueAtTime(0.45, t);
+  cg.gain.exponentialRampToValueAtTime(0.001, t + 0.012);
+  click.start(t); click.stop(t + 0.013);
+  // Low hum that swells in and fades
+  const hum = ctx.createOscillator(), hg = ctx.createGain();
+  hum.connect(hg); hg.connect(ctx.destination);
+  hum.type = 'sine'; hum.frequency.value = 90;
+  hg.gain.setValueAtTime(0, t);
+  hg.gain.linearRampToValueAtTime(0.28, t + 0.02);
+  hg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+  hum.start(t); hum.stop(t + 0.29);
 }
 const BACKOFF_STEPS = [1000, 2000, 4000, 8000, 16000, 30000];
 
