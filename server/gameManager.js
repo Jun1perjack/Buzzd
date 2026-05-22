@@ -61,7 +61,7 @@ async function fetchCover(gameName) {
   }
 }
 
-async function init(romsDir, key) {
+async function init(romsDir, key, nameFilter) {
   apiKey = key || null;
   games = [];
 
@@ -78,8 +78,10 @@ async function init(romsDir, key) {
     return;
   }
 
+  const filter = (nameFilter || '').toLowerCase();
   const romFiles = files
     .filter((f) => ROM_EXTENSIONS.has(path.extname(f).toLowerCase()))
+    .filter((f) => !filter || f.toLowerCase().includes(filter))
     .sort();
 
   console.log(`[games] Found ${romFiles.length} ROM(s) in ${romsDir}`);

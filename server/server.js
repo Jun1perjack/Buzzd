@@ -111,7 +111,7 @@ wss.on('close', () => clearInterval(pingInterval));
 
 async function start() {
   await controller.init();
-  await gameManager.init(process.env.ROMS_DIR, process.env.STEAMGRIDDB_API_KEY);
+  await gameManager.init(process.env.ROMS_DIR, process.env.STEAMGRIDDB_API_KEY, process.env.ROMS_FILTER);
 
   server.listen(PORT, () => {
     console.log(`WebSocket server listening on port ${PORT}`);
