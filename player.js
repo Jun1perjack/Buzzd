@@ -1,6 +1,32 @@
 'use strict';
 
 const BUTTONS = ['buzz', 'blue', 'orange', 'green', 'yellow'];
+
+// Audio feedback for browsers without Vibration API (iOS Safari)
+let _audioCtx = null;
+function _ctx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+function playClick() {
+  const ctx = _ctx(), osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.type = 'sine'; osc.frequency.value = 1100;
+  g.gain.setValueAtTime(0.25, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
+  osc.start(); osc.stop(ctx.currentTime + 0.025);
+}
+function playBuzz() {
+  const ctx = _ctx(), osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(130, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.18);
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+  osc.start(); osc.stop(ctx.currentTime + 0.19);
+}
 const BACKOFF_STEPS = [1000, 2000, 4000, 8000, 16000, 30000];
 
 let ws = null;
@@ -346,6 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
       el.classList.add('pressed');
       if (navigator.vibrate) {
         navigator.vibrate(button === 'buzz' ? [30, 20, 60] : 15);
+      } else {
+        button === 'buzz' ? playBuzz() : playClick();
       }
       sendButton(button, 1);
     }
