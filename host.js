@@ -140,8 +140,8 @@ function renderQR(url) {
   qrCanvas.innerHTML = '';
   new QRCode(qrCanvas, {
     text: url,
-    width: 200,
-    height: 200,
+    width: 240,
+    height: 240,
     colorDark: '#000000',
     colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M,

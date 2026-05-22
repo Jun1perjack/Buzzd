@@ -353,23 +353,73 @@ html, body {
 
 /* ── Host page ──────────────────────────────────────────────────────────────── */
 
-.host-container {
+.host-page {
   width: 100%;
-  max-width: 640px;
-  padding: 32px 24px;
+  max-width: 1100px;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-.host-container h1 {
-  font-size: 1.8rem;
+.host-title {
+  font-size: 2rem;
   font-weight: 900;
   color: var(--buzz-red);
+  letter-spacing: -1px;
 }
 
-.host-container h2 {
-  font-size: 1rem;
+.host-setup {
+  max-width: 560px;
+}
+
+/* Two-column dashboard */
+.host-dash {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.dash-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.dash-left-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dash-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.host-room-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.host-room-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Shared h2 for host cards */
+.host-page h2, .host-dash h2 {
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -384,11 +434,10 @@ html, body {
 }
 
 .room-code {
-  font-size: 3rem;
+  font-size: 2.4rem;
   font-weight: 900;
   letter-spacing: 0.15em;
   color: var(--text);
-  text-align: center;
   font-family: monospace;
 }
 
@@ -479,6 +528,8 @@ html, body {
   border-radius: 8px;
   background: #fff;
   padding: 12px;
+  width: 240px;
+  height: 240px;
 }
 
 .join-url-box {
