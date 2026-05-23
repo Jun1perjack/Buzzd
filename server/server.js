@@ -9,7 +9,6 @@ const { spawn } = require('child_process');
 const express = require('express');
 const cors = require('cors');
 const WebSocket = require('ws');
-const ngrok = require('@ngrok/ngrok');
 const qrcode = require('qrcode-terminal');
 
 const roomManager = require('./roomManager');
@@ -21,6 +20,7 @@ const VERCEL_URL = (process.env.VERCEL_URL || 'http://localhost:5500').replace(/
 const PING_INTERVAL_MS = 30_000;
 
 let lanBaseUrl = null;
+let cloudflaredProcess = null;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -31,6 +31,35 @@ function getLanIp() {
     }
   }
   return null;
+}
+
+function startCloudflared(port) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('cloudflared', [
+      'tunnel', '--url', `http://localhost:${port}`, '--no-autoupdate',
+    ]);
+
+    cloudflaredProcess = child;
+
+    const timeout = setTimeout(() => {
+      child.kill();
+      reject(new Error('timed out after 30s'));
+    }, 30_000);
+
+    // cloudflared prints the tunnel URL to stderr
+    child.stderr.on('data', (data) => {
+      const match = data.toString().match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+      if (match) {
+        clearTimeout(timeout);
+        resolve(match[0]);
+      }
+    });
+
+    child.on('error', () => {
+      clearTimeout(timeout);
+      reject(new Error('cloudflared not found — is it installed?'));
+    });
+  });
 }
 
 function send(ws, obj) {
@@ -56,7 +85,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve the frontend locally — avoids mixed-content issues when launched from Steam
 const FRONTEND_DIR = path.join(__dirname, '..');
 app.get('/',     (_req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/host', (_req, res) => res.sendFile(path.join(FRONTEND_DIR, 'host.html')));
@@ -72,7 +100,6 @@ app.get('/games', (_req, res) => {
   res.json(gameManager.getGames());
 });
 
-// Host-page "Start Game" button (no game selection — launches to PCSX2 menu or PCSX2_CMD as-is)
 app.post('/start', (req, res) => {
   const { gameId } = req.body || {};
   roomManager.startGame(wss);
@@ -95,12 +122,10 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'join') {
       roomManager.handleJoin(ws, msg, wss, controller.pressButton.bind(controller));
-      // If Player 1 just joined and game hasn't started, send the game list
       if (ws.buzzSlot === 1 && !roomManager.getStatus().gameStarted) {
         send(ws, { type: 'games', games: gameManager.getGames() });
       }
     } else if (msg.type === 'start') {
-      // Only Player 1 (host) can start the game from their phone
       if (ws.buzzSlot === 1) {
         roomManager.startGame(wss);
         launchPcsx2(msg.gameId || null);
@@ -108,14 +133,12 @@ wss.on('connection', (ws) => {
     } else if (msg.type === 'pong') {
       ws.isAlive = true;
     }
-    // button messages are handled per-player in roomManager
   });
 
   ws.on('close', () => roomManager.handleDisconnect(ws, wss));
   ws.on('error', () => roomManager.handleDisconnect(ws, wss));
 });
 
-// Keepalive ping
 const pingInterval = setInterval(() => {
   for (const ws of wss.clients) {
     if (!ws.isAlive) { ws.terminate(); continue; }
@@ -137,48 +160,26 @@ async function start() {
   });
 
   const roomCode = roomManager.roomCode();
-
   let wsUrl = `ws://localhost:${PORT}`;
   let joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
   let hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://localhost:${PORT}`)}`;
 
-  if (process.env.NGROK_AUTHTOKEN) {
-    try {
-      const ngrokTimeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timed out after 15s')), 15_000)
-      );
-      const tunnel = await Promise.race([
-        ngrok.forward({ addr: PORT, authtoken: process.env.NGROK_AUTHTOKEN }),
-        ngrokTimeout,
-      ]);
-      const tunnelUrl = tunnel.url();
-      wsUrl = tunnelUrl.replace(/^https?/, 'wss');
-      roomManager.setNgrokUrl(tunnelUrl);
-      joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-      hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(tunnelUrl)}`;
-      console.log(`Ngrok tunnel: ${tunnelUrl}`);
-    } catch (err) {
-      console.warn(`[ngrok] Failed to start tunnel: ${err.message}`);
-      const lanIp = getLanIp();
-      if (lanIp) {
-        lanBaseUrl = `http://${lanIp}:${PORT}`;
-        wsUrl = `ws://${lanIp}:${PORT}`;
-        joinUrl = `${lanBaseUrl}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-        hostUrl = `${lanBaseUrl}/host`;
-        console.warn(`[ngrok] Falling back to LAN IP: ${lanIp} — players must be on the same network.`);
-      } else {
-        console.warn('[ngrok] No LAN IP found — players will need to connect manually.');
-      }
-    }
-  } else {
-    console.log('[ngrok] No NGROK_AUTHTOKEN set — skipping tunnel. Players must be on the same network.');
+  try {
+    const tunnelUrl = await startCloudflared(PORT);
+    wsUrl = tunnelUrl.replace(/^https/, 'wss');
+    roomManager.setNgrokUrl(tunnelUrl);
+    joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+    hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(tunnelUrl)}`;
+    console.log(`Cloudflare tunnel: ${tunnelUrl}`);
+  } catch (err) {
+    console.warn(`[cloudflared] ${err.message}`);
     const lanIp = getLanIp();
     if (lanIp) {
       lanBaseUrl = `http://${lanIp}:${PORT}`;
       wsUrl = `ws://${lanIp}:${PORT}`;
       joinUrl = `${lanBaseUrl}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
       hostUrl = `${lanBaseUrl}/host`;
-      console.log(`[ngrok] LAN fallback: ${lanIp}`);
+      console.warn(`[cloudflared] Falling back to LAN — players must be on the same network.`);
     }
   }
 
@@ -207,5 +208,6 @@ start().catch((err) => {
 
 process.on('SIGINT', () => {
   controller.destroy();
+  if (cloudflaredProcess) cloudflaredProcess.kill();
   process.exit(0);
 });
