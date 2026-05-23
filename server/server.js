@@ -160,9 +160,10 @@ async function start() {
       console.warn(`[ngrok] Failed to start tunnel: ${err.message}`);
       const lanIp = getLanIp();
       if (lanIp) {
+        const lanBase = `http://${lanIp}:${PORT}`;
         wsUrl = `ws://${lanIp}:${PORT}`;
-        joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-        hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://${lanIp}:${PORT}`)}`;
+        joinUrl = `${lanBase}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+        hostUrl = `${lanBase}/host`;
         console.warn(`[ngrok] Falling back to LAN IP: ${lanIp} — players must be on the same network.`);
       } else {
         console.warn('[ngrok] No LAN IP found — players will need to connect manually.');
@@ -172,9 +173,10 @@ async function start() {
     console.log('[ngrok] No NGROK_AUTHTOKEN set — skipping tunnel. Players must be on the same network.');
     const lanIp = getLanIp();
     if (lanIp) {
+      const lanBase = `http://${lanIp}:${PORT}`;
       wsUrl = `ws://${lanIp}:${PORT}`;
-      joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-      hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://${lanIp}:${PORT}`)}`;
+      joinUrl = `${lanBase}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+      hostUrl = `${lanBase}/host`;
       console.log(`[ngrok] LAN fallback: ${lanIp}`);
     }
   }
