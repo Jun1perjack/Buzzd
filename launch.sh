@@ -12,6 +12,9 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 pkill -f "node.*server" 2>/dev/null
+pkill -f "[Cc]hromium" 2>/dev/null
+pkill -f "[Ff]irefox" 2>/dev/null
+rm -rf /tmp/buzzd-chrome
 sleep 0.5
 
 cd "$BUZZD_DIR/server"
