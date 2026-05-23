@@ -20,6 +20,8 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const VERCEL_URL = (process.env.VERCEL_URL || 'http://localhost:5500').replace(/\/$/, '');
 const PING_INTERVAL_MS = 30_000;
 
+let lanBaseUrl = null;
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getLanIp() {
@@ -63,8 +65,7 @@ app.use(express.static(FRONTEND_DIR));
 app.get('/health', (_req, res) => res.send('OK'));
 
 app.get('/status', (_req, res) => {
-  // Include vercelUrl so the host page can build correct player join links
-  res.json({ ...roomManager.getStatus(), vercelUrl: process.env.VERCEL_URL || null });
+  res.json({ ...roomManager.getStatus(), vercelUrl: process.env.VERCEL_URL || null, lanUrl: lanBaseUrl });
 });
 
 app.get('/games', (_req, res) => {
@@ -160,10 +161,10 @@ async function start() {
       console.warn(`[ngrok] Failed to start tunnel: ${err.message}`);
       const lanIp = getLanIp();
       if (lanIp) {
-        const lanBase = `http://${lanIp}:${PORT}`;
+        lanBaseUrl = `http://${lanIp}:${PORT}`;
         wsUrl = `ws://${lanIp}:${PORT}`;
-        joinUrl = `${lanBase}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-        hostUrl = `${lanBase}/host`;
+        joinUrl = `${lanBaseUrl}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+        hostUrl = `${lanBaseUrl}/host`;
         console.warn(`[ngrok] Falling back to LAN IP: ${lanIp} — players must be on the same network.`);
       } else {
         console.warn('[ngrok] No LAN IP found — players will need to connect manually.');
@@ -173,10 +174,10 @@ async function start() {
     console.log('[ngrok] No NGROK_AUTHTOKEN set — skipping tunnel. Players must be on the same network.');
     const lanIp = getLanIp();
     if (lanIp) {
-      const lanBase = `http://${lanIp}:${PORT}`;
+      lanBaseUrl = `http://${lanIp}:${PORT}`;
       wsUrl = `ws://${lanIp}:${PORT}`;
-      joinUrl = `${lanBase}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
-      hostUrl = `${lanBase}/host`;
+      joinUrl = `${lanBaseUrl}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+      hostUrl = `${lanBaseUrl}/host`;
       console.log(`[ngrok] LAN fallback: ${lanIp}`);
     }
   }

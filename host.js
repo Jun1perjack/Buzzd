@@ -74,11 +74,11 @@ async function fetchStatus() {
 
 function onServerConnected(data) {
   const roomCode = data.roomCode;
-  // Use ngrok URL if available — that's what players on other devices can reach
-  const reachableBase = data.ngrokUrl || ngrokBase;
+  // ngrok = reachable from anywhere; lanUrl = same-network only; ngrokBase = localhost fallback
+  const reachableBase = data.ngrokUrl || data.lanUrl || ngrokBase;
   const wsUrl = reachableBase.replace(/^https:/, 'wss:').replace(/^http:/, 'ws:');
-  // Use the Vercel frontend URL from the server if available, else fall back to this page's origin
-  const frontendBase = data.vercelUrl || VERCEL_URL;
+  // When on LAN, serve frontend from local HTTP server to avoid mixed-content blocks
+  const frontendBase = data.ngrokUrl ? (data.vercelUrl || VERCEL_URL) : (data.lanUrl || VERCEL_URL);
   joinUrl = `${frontendBase}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
 
   setupSection.classList.add('hidden');
