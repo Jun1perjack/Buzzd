@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const http = require('http');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const express = require('express');
@@ -20,6 +21,15 @@ const VERCEL_URL = (process.env.VERCEL_URL || 'http://localhost:5500').replace(/
 const PING_INTERVAL_MS = 30_000;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getLanIp() {
+  for (const iface of Object.values(os.networkInterfaces())) {
+    for (const addr of iface) {
+      if (addr.family === 'IPv4' && !addr.internal) return addr.address;
+    }
+  }
+  return null;
+}
 
 function send(ws, obj) {
   if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(obj));
@@ -133,10 +143,13 @@ async function start() {
 
   if (process.env.NGROK_AUTHTOKEN) {
     try {
-      const tunnel = await ngrok.forward({
-        addr: PORT,
-        authtoken: process.env.NGROK_AUTHTOKEN,
-      });
+      const ngrokTimeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timed out after 15s')), 15_000)
+      );
+      const tunnel = await Promise.race([
+        ngrok.forward({ addr: PORT, authtoken: process.env.NGROK_AUTHTOKEN }),
+        ngrokTimeout,
+      ]);
       const tunnelUrl = tunnel.url();
       wsUrl = tunnelUrl.replace(/^https?/, 'wss');
       roomManager.setNgrokUrl(tunnelUrl);
@@ -145,10 +158,25 @@ async function start() {
       console.log(`Ngrok tunnel: ${tunnelUrl}`);
     } catch (err) {
       console.warn(`[ngrok] Failed to start tunnel: ${err.message}`);
-      console.warn('[ngrok] Players will need to connect over LAN.');
+      const lanIp = getLanIp();
+      if (lanIp) {
+        wsUrl = `ws://${lanIp}:${PORT}`;
+        joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+        hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://${lanIp}:${PORT}`)}`;
+        console.warn(`[ngrok] Falling back to LAN IP: ${lanIp} — players must be on the same network.`);
+      } else {
+        console.warn('[ngrok] No LAN IP found — players will need to connect manually.');
+      }
     }
   } else {
     console.log('[ngrok] No NGROK_AUTHTOKEN set — skipping tunnel. Players must be on the same network.');
+    const lanIp = getLanIp();
+    if (lanIp) {
+      wsUrl = `ws://${lanIp}:${PORT}`;
+      joinUrl = `${VERCEL_URL}/?server=${encodeURIComponent(wsUrl)}&code=${roomCode}`;
+      hostUrl = `${VERCEL_URL}/host?server=${encodeURIComponent(`http://${lanIp}:${PORT}`)}`;
+      console.log(`[ngrok] LAN fallback: ${lanIp}`);
+    }
   }
 
   printBanner(roomCode, joinUrl, hostUrl, wsUrl);
